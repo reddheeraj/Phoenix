@@ -7,9 +7,10 @@ interface PlayerCardProps {
   picture: string;
   level: number;
   totalXP: number;
+  currentXP?: number;
 }
 
-export const PlayerCard = ({ name, picture, level, totalXP }: PlayerCardProps) => {
+export const PlayerCard = ({ name, picture, level, totalXP, currentXP }: PlayerCardProps) => {
   return (
     <div className="glass glass-hover rounded-2xl p-8 relative overflow-hidden">
       {/* Gradient Overlay */}
@@ -59,7 +60,7 @@ export const PlayerCard = ({ name, picture, level, totalXP }: PlayerCardProps) =
       </div>
 
       {/* XP Bar */}
-      <XPBar totalXP={totalXP} />
+      <XPBar totalXP={totalXP} currentXP={currentXP} level={level} />
     </div>
   );
 };

@@ -241,6 +241,7 @@ export default function Dashboard() {
               picture={user.picture}
               level={userStats?.level || 1}
               totalXP={userStats?.total_xp || 0}
+              currentXP={userStats?.current_xp}
             />
 
             {/* Sync Emails Button */}

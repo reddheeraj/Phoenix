@@ -402,8 +402,8 @@ class DatabaseManager:
     
     def calculate_level_xp_required(self, level: int) -> int:
         """Calculate XP required for a specific level"""
-        # More reasonable growth: Level 1 = 50 XP, Level 2 = 100 XP, Level 3 = 150 XP, etc.
-        return int(50 * level)
+        # Level 1 = 100 XP, Level 2 = 200 XP, Level 3 = 300 XP, etc.
+        return int(100 * level)
     
     def complete_quest(self, quest_id: int, user_id: str) -> Dict:
         """Complete a quest and award XP"""
