@@ -169,8 +169,8 @@ class QuestAgent:
                 id=settings.BEDROCK_MODEL_ID,
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                aws_session_token=settings.AWS_SESSION_TOKEN,
-                region_name=settings.AWS_REGION
+                # aws_session_token=settings.AWS_SESSION_TOKEN,
+                # region_name=settings.AWS_REGION
             ),
             description="A solo leveling quest management assistant that helps you track and manage your quests for self-improvement.",
             instructions=[
