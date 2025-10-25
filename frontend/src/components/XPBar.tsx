@@ -7,7 +7,7 @@ interface XPBarProps {
 }
 
 export const XPBar = ({ totalXP, currentXP, level }: XPBarProps) => {
-  // Calculate XP required for next level using backend system (100 * level)
+  // Calculate XP required for next level using backend system (100 * next_level)
   const xpForNextLevel = level ? (level + 1) * 100 : 100;
   const xpForCurrentLevel = level ? level * 100 : 0;
   
@@ -15,14 +15,14 @@ export const XPBar = ({ totalXP, currentXP, level }: XPBarProps) => {
   const actualCurrentXP = currentXP !== undefined ? currentXP : (totalXP - xpForCurrentLevel);
   
   // Calculate percentage for current level progress
-  const percentage = Math.min((actualCurrentXP / 100) * 100, 100);
+  const percentage = Math.min((actualCurrentXP / xpForNextLevel) * 100, 100);
 
   return (
     <div className="w-full space-y-2">
       <div className="flex justify-between items-center text-sm">
         <span className="text-muted-foreground font-body">XP Progress</span>
         <span className="font-heading text-foreground">
-          {actualCurrentXP} / 100 XP
+          {actualCurrentXP} / {xpForNextLevel} XP
         </span>
       </div>
       

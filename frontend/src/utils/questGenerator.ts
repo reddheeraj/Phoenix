@@ -37,14 +37,16 @@ export function calculateLevel(totalXP: number): number {
 }
 
 export function getXPForNextLevel(currentLevel: number): number {
-  return currentLevel * 100;
+  // XP required to reach the NEXT level (level + 1) * 100
+  return (currentLevel + 1) * 100;
 }
 
 export function getCurrentLevelXP(totalXP: number): number {
   return totalXP % 100;
 }
 
-export function getXPPercentage(totalXP: number): number {
+export function getXPPercentage(totalXP: number, currentLevel: number): number {
   const currentLevelXP = getCurrentLevelXP(totalXP);
-  return (currentLevelXP / 100) * 100;
+  const xpForNext = getXPForNextLevel(currentLevel);
+  return (currentLevelXP / xpForNext) * 100;
 }
