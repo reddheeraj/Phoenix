@@ -21,6 +21,7 @@ export default function Dashboard() {
 
   const {
     userStats,
+    userPreferences,
     quests: apiQuests,
     isLoading,
     fetchUserStats,
@@ -505,28 +506,38 @@ export default function Dashboard() {
               <div className="space-y-3">
                 <div>
                   <p className="text-muted-foreground text-sm font-body mb-2">
-                    Focus Areas
+                    Daily Tasks
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {preferences.focusAreas.map((area) => (
+                    {userPreferences?.daily_tasks?.map((task, index) => (
                       <span
-                        key={area}
+                        key={index}
                         className="px-3 py-1 rounded-lg gradient-bg text-white font-body text-sm font-semibold"
                       >
-                        {area.charAt(0).toUpperCase() + area.slice(1)}
+                        {task}
                       </span>
-                    ))}
+                    )) || (
+                      <span className="text-muted-foreground text-sm">Loading...</span>
+                    )}
                   </div>
                 </div>
                 
                 <div>
                   <p className="text-muted-foreground text-sm font-body mb-2">
-                    Difficulty
+                    Long-term Goals
                   </p>
-                  <span className="px-3 py-1 rounded-lg gradient-bg text-white font-body text-sm font-semibold inline-block">
-                    {preferences.difficulty.charAt(0).toUpperCase() +
-                      preferences.difficulty.slice(1)}
-                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {userPreferences?.long_term_goals?.map((goal, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 rounded-lg gradient-bg text-white font-body text-sm font-semibold"
+                      >
+                        {goal}
+                      </span>
+                    )) || (
+                      <span className="text-muted-foreground text-sm">Loading...</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
