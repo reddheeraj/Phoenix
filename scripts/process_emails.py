@@ -90,11 +90,16 @@ class EmailProcessor:
                     
                     if analysis.get('should_create_quest', False):
                         # Create quest in database
+                        # Map LLM quest types to database quest types
+                        db_quest_type = 'email_based'  # All email-generated quests are email_based
+                        quest_category = analysis['quest_type']  # Use LLM's specific type as category
+                        
                         quest_id = self.db_manager.add_quest(
                             email_id=email['id'],
                             title=analysis['title'],
                             description=analysis['description'],
-                            quest_type=analysis['quest_type'],
+                            quest_type=db_quest_type,
+                            quest_category=quest_category,
                             importance=analysis['importance'],
                             urgency=analysis['urgency'],
                             deadline=analysis.get('deadline'),
@@ -198,13 +203,17 @@ class EmailProcessor:
                     
                     if analysis.get('should_create_quest', False):
                         # Create quest in database with user_id
+                        # Map LLM quest types to database quest types
+                        db_quest_type = 'email_based'  # All email-generated quests are email_based
+                        quest_category = analysis['quest_type']  # Use LLM's specific type as category
+                        
                         quest_id = self.db_manager.add_quest(
                             user_id=user_id,
                             email_id=email['id'],
                             title=analysis['title'],
                             description=analysis['description'],
-                            quest_type=analysis['quest_type'],
-                            quest_category=analysis.get('quest_category', 'general'),
+                            quest_type=db_quest_type,
+                            quest_category=quest_category,
                             importance=analysis['importance'],
                             urgency=analysis['urgency'],
                             deadline=analysis.get('deadline'),

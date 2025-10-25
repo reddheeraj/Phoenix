@@ -80,18 +80,19 @@ class DatabaseManager:
             logger.error(f"Failed to mark email as processed: {e}")
             raise
     
-    def add_quest(self, email_id: int, title: str, description: str, quest_type: str, 
-                  importance: str, urgency: str, deadline: datetime = None, 
-                  event_duration_minutes: int = 60, calendar_event_id: str = None) -> int:
+    def add_quest(self, email_id: int = None, user_id: str = None, title: str = None, description: str = None, 
+                  quest_type: str = None, quest_category: str = None, importance: str = None, 
+                  urgency: str = None, deadline: datetime = None, event_duration_minutes: int = 60, 
+                  calendar_event_id: str = None) -> int:
         """Add quest to database"""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
-                    INSERT INTO quests (email_id, title, description, quest_type, importance, 
-                                     urgency, deadline, event_duration_minutes, calendar_event_id)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (email_id, title, description, quest_type, importance, urgency, 
+                    INSERT INTO quests (user_id, email_id, title, description, quest_type, quest_category,
+                                     importance, urgency, deadline, event_duration_minutes, calendar_event_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (user_id, email_id, title, description, quest_type, quest_category, importance, urgency, 
                       deadline, event_duration_minutes, calendar_event_id))
                 conn.commit()
                 return cursor.lastrowid
