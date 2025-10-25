@@ -18,8 +18,6 @@ export default function Onboarding() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
   const [dailyTasks, setDailyTasks] = useState<string[]>([]);
   const [longTermGoals, setLongTermGoals] = useState<string[]>([]);
-  const [customDailyTask, setCustomDailyTask] = useState('');
-  const [customLongTermGoal, setCustomLongTermGoal] = useState('');
 
   const focusOptions = [
     {
@@ -258,29 +256,6 @@ export default function Onboarding() {
                     ))}
                   </div>
 
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={customDailyTask}
-                      onChange={(e) => setCustomDailyTask(e.target.value)}
-                      placeholder="Add custom daily task..."
-                      className="flex-1 px-4 py-3 rounded-xl glass text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <motion.button
-                      onClick={() => {
-                        if (customDailyTask.trim()) {
-                          setDailyTasks([...dailyTasks, customDailyTask.trim()]);
-                          setCustomDailyTask('');
-                        }
-                      }}
-                      className="px-6 py-3 rounded-xl gradient-bg text-white font-semibold"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Add
-                    </motion.button>
-                  </div>
-
                   {dailyTasks.length > 0 && (
                     <div className="mt-6">
                       <h3 className="font-heading font-bold text-white mb-3">Selected Tasks:</h3>
@@ -339,29 +314,6 @@ export default function Onboarding() {
                         {goal}
                       </motion.button>
                     ))}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={customLongTermGoal}
-                      onChange={(e) => setCustomLongTermGoal(e.target.value)}
-                      placeholder="Add custom long-term goal..."
-                      className="flex-1 px-4 py-3 rounded-xl glass text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <motion.button
-                      onClick={() => {
-                        if (customLongTermGoal.trim()) {
-                          setLongTermGoals([...longTermGoals, customLongTermGoal.trim()]);
-                          setCustomLongTermGoal('');
-                        }
-                      }}
-                      className="px-6 py-3 rounded-xl gradient-bg text-white font-semibold"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Add
-                    </motion.button>
                   </div>
 
                   {longTermGoals.length > 0 && (
