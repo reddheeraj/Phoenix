@@ -10,13 +10,41 @@ CREATE TABLE IF NOT EXISTS emails (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Quests table
+-- User preferences table
+CREATE TABLE IF NOT EXISTS user_preferences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT UNIQUE NOT NULL,
+    daily_tasks TEXT NOT NULL, -- JSON array of daily tasks
+    long_term_goals TEXT NOT NULL, -- JSON array of long-term goals
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User stats table for gamification
+CREATE TABLE IF NOT EXISTS user_stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT UNIQUE NOT NULL,
+    level INTEGER DEFAULT 0,
+    total_xp INTEGER DEFAULT 0,
+    current_xp INTEGER DEFAULT 0, -- XP in current level
+    quests_completed INTEGER DEFAULT 0,
+    daily_quests_completed INTEGER DEFAULT 0,
+    email_quests_completed INTEGER DEFAULT 0,
+    streak_days INTEGER DEFAULT 0,
+    last_activity_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Quests table (updated to support different quest types)
 CREATE TABLE IF NOT EXISTS quests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
+    email_id INTEGER, -- NULL for daily tasks
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    quest_type TEXT NOT NULL,
+    quest_type TEXT NOT NULL, -- 'daily_task' or 'email_based'
+    quest_category TEXT NOT NULL, -- 'daily', 'work', 'personal', etc.
     importance TEXT NOT NULL,
     urgency TEXT NOT NULL,
     deadline TIMESTAMP,

@@ -135,4 +135,78 @@ Respond with valid JSON only.
             "event_duration_minutes": 60,
             "reasoning": "Failed to analyze email content"
         }
+    
+    def generate_quest_analysis_with_goals(self, email_data: Dict, user_preferences: Dict = None) -> Dict:
+        """Generate quest analysis aligned with user's long-term goals"""
+        try:
+            # Build context with user's long-term goals
+            long_term_goals = user_preferences.get('long_term_goals', []) if user_preferences else []
+            goals_context = ""
+            if long_term_goals:
+                goals_context = f"\n\nUser's Long-term Goals: {', '.join(long_term_goals)}"
+                goals_context += "\n\nAnalyze if this email content aligns with any of these goals and prioritize quest creation accordingly."
+            
+            prompt = f"""
+Analyze this email and determine if it should become a quest, considering the user's long-term goals.
+
+Email Subject: {email_data.get('subject', 'No subject')}
+Email Sender: {email_data.get('sender', 'Unknown sender')}
+Email Body: {email_data.get('body', 'No body')[:1000]}...
+{goals_context}
+
+Consider:
+1. Does this email contain actionable items, deadlines, or important tasks?
+2. Does it align with the user's long-term goals?
+3. Is it urgent or important enough to become a quest?
+4. What type of quest would this be (assignment, event, application, etc.)?
+
+Respond with a JSON object containing:
+- should_create_quest: boolean
+- title: string (if creating quest)
+- description: string (if creating quest)
+- quest_type: string (assignment, event, application, interview, task, etc.)
+- quest_category: string (work, personal, education, health, etc.)
+- importance: string (daily, weekly, main_quest, side_quest)
+- urgency: string (low, medium, high, critical)
+- deadline: string (ISO format if mentioned, null otherwise)
+- event_duration_minutes: integer (estimated duration)
+- reasoning: string (explanation of decision and goal alignment)
+"""
+
+            body = {
+                "max_tokens": 4000,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            }
+            
+            # Call Bedrock
+            response = self.client.invoke_model(
+                modelId=self.model_id,
+                body=json.dumps(body),
+                contentType="application/json"
+            )
+            
+            # Parse response
+            response_body = json.loads(response['body'].read())
+            content = response_body['content'][0]['text']
+            
+            # Parse the JSON response
+            quest_analysis = json.loads(content)
+            
+            logger.info("Goal-aligned quest analysis generated successfully")
+            return quest_analysis
+            
+        except ClientError as e:
+            logger.error(f"Bedrock API error: {e}")
+            raise
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON response: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise
 

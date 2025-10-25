@@ -1,0 +1,844 @@
+openapi: 3.0.3
+info:
+  title: Phoenix Solo Leveling System API
+  description: |
+    Backend API for the Phoenix Solo Leveling self-improvement system.
+    This system gamifies personal productivity by converting emails and daily tasks into quests,
+    awarding XP, and tracking user progress through levels.
+  version: 1.0.0
+  contact:
+    name: Phoenix Development Team
+    email: support@phoenix.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.phoenix.com
+    description: Production server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check if the API is running
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /onboarding:
+    post:
+      summary: Complete user onboarding
+      description: Set up user preferences and create initial daily tasks
+      operationId: userOnboarding
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardingRequest'
+      responses:
+        '200':
+          description: User onboarding completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User onboarding completed successfully"
+                  user_id:
+                    type: string
+                    example: "user123"
+                  daily_quests_created:
+                    type: integer
+                    example: 4
+                  next_step:
+                    type: string
+                    example: "Process emails to generate goal-aligned quests"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{user_id}/preferences:
+    get:
+      summary: Get user preferences
+      description: Retrieve user's daily tasks and long-term goals
+      operationId: getUserPreferences
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: User preferences retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreferences'
+        '404':
+          description: User preferences not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update user preferences
+      description: Update user's daily tasks and/or long-term goals
+      operationId: updateUserPreferences
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPreferencesUpdate'
+      responses:
+        '200':
+          description: User preferences updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User preferences updated successfully"
+                  user_id:
+                    type: string
+                    example: "user123"
+        '404':
+          description: User preferences not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{user_id}/quests:
+    get:
+      summary: Get user's quests
+      description: Retrieve user's quests, optionally filtered by type
+      operationId: getUserQuests
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+        - name: quest_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [daily_task, email_based]
+          description: Filter by quest type
+      responses:
+        '200':
+          description: User's quests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{user_id}/quests/{quest_id}/complete:
+    post:
+      summary: Complete a quest
+      description: Mark a quest as completed and award XP
+      operationId: completeQuest
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+        - name: quest_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Quest ID
+      responses:
+        '200':
+          description: Quest completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestCompletionResponse'
+        '400':
+          description: Bad request (quest not found or already completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{user_id}/stats:
+    get:
+      summary: Get user stats
+      description: Retrieve user's gamification statistics
+      operationId: getUserStats
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: User stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStats'
+        '404':
+          description: User stats not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{user_id}/process-emails:
+    post:
+      summary: Process user emails
+      description: Process emails for a specific user and generate goal-aligned quests
+      operationId: processUserEmails
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 7
+          description: Number of days to process emails
+      responses:
+        '200':
+          description: Email processing completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email processing completed"
+                  user_id:
+                    type: string
+                    example: "user123"
+                  emails_processed:
+                    type: integer
+                    example: 25
+                  quests_created:
+                    type: integer
+                    example: 8
+                  daily_quests_created:
+                    type: integer
+                    example: 0
+        '404':
+          description: User preferences not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{user_id}/leaderboard:
+    get:
+      summary: Get leaderboard
+      description: Get leaderboard of top users by level and XP
+      operationId: getLeaderboard
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Number of top users to return
+      responses:
+        '200':
+          description: Leaderboard retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user_id:
+                      type: string
+                    level:
+                      type: integer
+                    total_xp:
+                      type: integer
+                    quests_completed:
+                      type: integer
+                    streak_days:
+                      type: integer
+        '404':
+          description: User stats not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /quests:
+    get:
+      summary: Get all quests
+      description: Retrieve all quests with optional filters
+      operationId: getAllQuests
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+          description: Filter by status
+        - name: importance
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [daily, weekly, main_quest, side_quest]
+          description: Filter by importance
+        - name: urgency
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+          description: Filter by urgency
+      responses:
+        '200':
+          description: Quests retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /quests/{quest_id}:
+    get:
+      summary: Get specific quest
+      description: Retrieve a specific quest by ID
+      operationId: getQuest
+      parameters:
+        - name: quest_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Quest ID
+      responses:
+        '200':
+          description: Quest retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestResponse'
+        '404':
+          description: Quest not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update quest
+      description: Update quest status or other properties
+      operationId: updateQuest
+      parameters:
+        - name: quest_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Quest ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestUpdate'
+      responses:
+        '200':
+          description: Quest updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestResponse'
+        '404':
+          description: Quest not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /process-emails:
+    post:
+      summary: Process emails
+      description: Process emails and generate quests
+      operationId: processEmails
+      parameters:
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 7
+          description: Number of days to process emails
+      responses:
+        '200':
+          description: Email processing completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessingResult'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /chat:
+    post:
+      summary: Chat with agent
+      description: Send a message to the quest management agent
+      operationId: chatWithAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Agent response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    OnboardingRequest:
+      type: object
+      required:
+        - user_id
+        - daily_tasks
+        - long_term_goals
+      properties:
+        user_id:
+          type: string
+          description: Unique user identifier
+          example: "user123"
+        daily_tasks:
+          type: array
+          items:
+            type: string
+          description: List of daily tasks
+          example: ["Gym", "Medicine", "Read", "Code"]
+        long_term_goals:
+          type: array
+          items:
+            type: string
+          description: List of long-term goals
+          example: ["Get Job", "Learn AI", "Save Money"]
+
+    UserPreferences:
+      type: object
+      required:
+        - user_id
+        - daily_tasks
+        - long_term_goals
+      properties:
+        user_id:
+          type: string
+          example: "user123"
+        daily_tasks:
+          type: array
+          items:
+            type: string
+          example: ["Gym", "Medicine", "Read", "Code"]
+        long_term_goals:
+          type: array
+          items:
+            type: string
+          example: ["Get Job", "Learn AI", "Save Money"]
+
+    UserPreferencesUpdate:
+      type: object
+      properties:
+        daily_tasks:
+          type: array
+          items:
+            type: string
+          description: Updated list of daily tasks
+        long_term_goals:
+          type: array
+          items:
+            type: string
+          description: Updated list of long-term goals
+
+    UserStats:
+      type: object
+      required:
+        - user_id
+        - level
+        - total_xp
+        - current_xp
+        - quests_completed
+        - daily_quests_completed
+        - email_quests_completed
+        - streak_days
+      properties:
+        user_id:
+          type: string
+          example: "user123"
+        level:
+          type: integer
+          description: Current user level
+          example: 5
+        total_xp:
+          type: integer
+          description: Total XP earned
+          example: 1250
+        current_xp:
+          type: integer
+          description: XP in current level
+          example: 150
+        quests_completed:
+          type: integer
+          description: Total quests completed
+          example: 42
+        daily_quests_completed:
+          type: integer
+          description: Daily tasks completed
+          example: 28
+        email_quests_completed:
+          type: integer
+          description: Email-based quests completed
+          example: 14
+        streak_days:
+          type: integer
+          description: Current streak in days
+          example: 7
+        last_activity_date:
+          type: string
+          format: date
+          description: Last activity date
+          example: "2024-01-15"
+
+    QuestResponse:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - quest_type
+        - importance
+        - urgency
+        - event_duration_minutes
+        - status
+        - created_at
+      properties:
+        id:
+          type: integer
+          example: 123
+        title:
+          type: string
+          example: "Complete Machine Learning Assignment"
+        description:
+          type: string
+          example: "Finish the neural network implementation for the ML course"
+        quest_type:
+          type: string
+          enum: [daily_task, email_based]
+          example: "email_based"
+        importance:
+          type: string
+          enum: [daily, weekly, main_quest, side_quest]
+          example: "main_quest"
+        urgency:
+          type: string
+          enum: [low, medium, high, critical]
+          example: "high"
+        deadline:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-01-20T23:59:59Z"
+        event_duration_minutes:
+          type: integer
+          example: 120
+        calendar_event_id:
+          type: string
+          nullable: true
+          example: "cal_event_123"
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+          example: "pending"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    QuestUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+          description: New quest status
+        calendar_event_id:
+          type: string
+          description: Calendar event ID
+
+    QuestCompletionResponse:
+      type: object
+      required:
+        - quest_id
+        - xp_reward
+        - new_level
+        - level_ups
+        - new_total_xp
+        - new_current_xp
+        - streak_days
+        - message
+      properties:
+        quest_id:
+          type: integer
+          example: 123
+        xp_reward:
+          type: integer
+          description: XP awarded for completing the quest
+          example: 50
+        new_level:
+          type: integer
+          description: New user level after completion
+          example: 6
+        level_ups:
+          type: integer
+          description: Number of levels gained
+          example: 1
+        new_total_xp:
+          type: integer
+          description: New total XP
+          example: 1300
+        new_current_xp:
+          type: integer
+          description: New current level XP
+          example: 200
+        streak_days:
+          type: integer
+          description: Current streak
+          example: 8
+        message:
+          type: string
+          description: Celebration message
+          example: "Quest completed! +50 XP 🎉 LEVEL UP! You're now level 6! 🔥 8 day streak!"
+
+    QuestStats:
+      type: object
+      properties:
+        total_quests:
+          type: integer
+          example: 100
+        completed_quests:
+          type: integer
+          example: 75
+        pending_quests:
+          type: integer
+          example: 20
+        in_progress_quests:
+          type: integer
+          example: 5
+        completion_rate:
+          type: number
+          format: float
+          example: 0.75
+        importance_breakdown:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            daily: 30
+            weekly: 25
+            main_quest: 20
+            side_quest: 25
+        urgency_breakdown:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            low: 40
+            medium: 35
+            high: 20
+            critical: 5
+
+    ProcessingResult:
+      type: object
+      properties:
+        emails_processed:
+          type: integer
+          example: 25
+        quests_created:
+          type: integer
+          example: 8
+        calendar_events_created:
+          type: integer
+          example: 3
+
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Message to send to the agent
+          example: "What quests do I have today?"
+
+    ChatResponse:
+      type: object
+      required:
+        - response
+      properties:
+        response:
+          type: string
+          description: Agent's response
+          example: "You have 3 pending quests today: Complete ML assignment, Go to gym, and Review job applications."
+
+    Error:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "User not found"
+
+tags:
+  - name: User Management
+    description: User onboarding and preferences
+  - name: Quest Management
+    description: Quest creation, completion, and tracking
+  - name: Gamification
+    description: XP, levels, and user stats
+  - name: Email Processing
+    description: Email analysis and quest generation
+  - name: System
+    description: Health checks and system status

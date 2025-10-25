@@ -11,8 +11,8 @@ class QuestAnalyzer:
         self.bedrock_client = BedrockClient()
         self.email_parser = EmailParser()
     
-    def analyze_email_for_quest(self, email_data: Dict) -> Dict[str, Any]:
-        """Analyze email and determine if it should become a quest"""
+    def analyze_email_for_quest(self, email_data: Dict, user_preferences: Dict = None) -> Dict[str, Any]:
+        """Analyze email and determine if it should become a quest, aligned with user's long-term goals"""
         try:
             # First, use email parser for basic analysis
             parsed_email = self.email_parser.parse_email(email_data)
@@ -24,8 +24,8 @@ class QuestAnalyzer:
                     'reasoning': 'Email does not contain quest-worthy content based on basic analysis'
                 }
             
-            # Use LLM for detailed analysis
-            llm_analysis = self.bedrock_client.generate_quest_analysis(email_data)
+            # Use LLM for detailed analysis with user preferences
+            llm_analysis = self.bedrock_client.generate_quest_analysis_with_goals(email_data, user_preferences)
             
             # Validate and clean the LLM response
             validated_analysis = self._validate_llm_response(llm_analysis, parsed_email)
@@ -126,4 +126,32 @@ class QuestAnalyzer:
         except Exception as e:
             logger.error(f"Failed to create quest from analysis: {e}")
             return None
+    
+    def generate_daily_tasks(self, user_preferences: Dict) -> List[Dict[str, Any]]:
+        """Generate daily tasks based on user preferences"""
+        try:
+            daily_tasks = user_preferences.get('daily_tasks', [])
+            generated_quests = []
+            
+            for task in daily_tasks:
+                quest_data = {
+                    'email_id': None,  # Daily tasks are not email-based
+                    'title': f"Daily: {task}",
+                    'description': f"Complete your daily task: {task}",
+                    'quest_type': 'daily_task',
+                    'quest_category': 'daily',
+                    'importance': 'daily',
+                    'urgency': 'medium',
+                    'deadline': None,  # Daily tasks don't have specific deadlines
+                    'event_duration_minutes': 30,  # Default 30 minutes for daily tasks
+                    'status': 'pending'
+                }
+                generated_quests.append(quest_data)
+            
+            logger.info(f"Generated {len(generated_quests)} daily tasks")
+            return generated_quests
+            
+        except Exception as e:
+            logger.error(f"Failed to generate daily tasks: {e}")
+            return []
 

@@ -25,6 +25,7 @@ from src.agent.quest_agent import QuestAgent
 from src.gmail.gmail_client import GmailClient
 from src.calendar.calendar_client import CalendarClient
 from scripts.process_emails import EmailProcessor
+from src.llm.quest_analyzer import QuestAnalyzer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -67,6 +68,41 @@ class QuestResponse(BaseModel):
 
 class QuestUpdate(BaseModel):
     status: Optional[str] = None
+
+class UserPreferences(BaseModel):
+    user_id: str
+    daily_tasks: List[str]
+    long_term_goals: List[str]
+
+class UserPreferencesUpdate(BaseModel):
+    daily_tasks: Optional[List[str]] = None
+    long_term_goals: Optional[List[str]] = None
+
+class OnboardingRequest(BaseModel):
+    user_id: str
+    daily_tasks: List[str]
+    long_term_goals: List[str]
+
+class UserStats(BaseModel):
+    user_id: str
+    level: int
+    total_xp: int
+    current_xp: int
+    quests_completed: int
+    daily_quests_completed: int
+    email_quests_completed: int
+    streak_days: int
+    last_activity_date: Optional[str]
+
+class QuestCompletionResponse(BaseModel):
+    quest_id: int
+    xp_reward: int
+    new_level: int
+    level_ups: int
+    new_total_xp: int
+    new_current_xp: int
+    streak_days: int
+    message: str
 
 class QuestStats(BaseModel):
     total_quests: int
@@ -186,6 +222,223 @@ async def chat_with_agent(request: ChatRequest):
         return ChatResponse(response=response)
     except Exception as e:
         logger.error(f"Failed to chat with agent: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# User onboarding and preferences endpoints
+@app.post("/onboarding", response_model=Dict[str, Any])
+async def user_onboarding(request: OnboardingRequest):
+    """Complete user onboarding with daily tasks and long-term goals"""
+    try:
+        # Create user preferences
+        db_manager.create_user_preferences(
+            user_id=request.user_id,
+            daily_tasks=request.daily_tasks,
+            long_term_goals=request.long_term_goals
+        )
+        
+        # Create user stats for gamification
+        db_manager.create_user_stats(request.user_id)
+        
+        # Generate daily tasks as quests
+        quest_analyzer = QuestAnalyzer()
+        user_preferences = {
+            'daily_tasks': request.daily_tasks,
+            'long_term_goals': request.long_term_goals
+        }
+        
+        daily_quests = quest_analyzer.generate_daily_tasks(user_preferences)
+        
+        # Add daily tasks to database
+        daily_quests_created = 0
+        for quest_data in daily_quests:
+            db_manager.add_quest(
+                user_id=request.user_id,
+                email_id=quest_data['email_id'],
+                title=quest_data['title'],
+                description=quest_data['description'],
+                quest_type=quest_data['quest_type'],
+                quest_category=quest_data['quest_category'],
+                importance=quest_data['importance'],
+                urgency=quest_data['urgency'],
+                deadline=quest_data['deadline'],
+                event_duration_minutes=quest_data['event_duration_minutes']
+            )
+            daily_quests_created += 1
+        
+        return {
+            "message": "User onboarding completed successfully",
+            "user_id": request.user_id,
+            "daily_quests_created": daily_quests_created,
+            "next_step": "Process emails to generate goal-aligned quests"
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to complete user onboarding: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/users/{user_id}/preferences", response_model=UserPreferences)
+async def get_user_preferences(user_id: str = Path(..., description="User ID")):
+    """Get user preferences"""
+    try:
+        preferences = db_manager.get_user_preferences(user_id)
+        if not preferences:
+            raise HTTPException(status_code=404, detail="User preferences not found")
+        
+        return UserPreferences(
+            user_id=user_id,
+            daily_tasks=preferences['daily_tasks'],
+            long_term_goals=preferences['long_term_goals']
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get user preferences: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/users/{user_id}/preferences", response_model=Dict[str, Any])
+async def update_user_preferences(
+    user_id: str = Path(..., description="User ID"),
+    preferences: UserPreferencesUpdate = None
+):
+    """Update user preferences"""
+    try:
+        success = db_manager.update_user_preferences(
+            user_id=user_id,
+            daily_tasks=preferences.daily_tasks,
+            long_term_goals=preferences.long_term_goals
+        )
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="User preferences not found")
+        
+        return {
+            "message": "User preferences updated successfully",
+            "user_id": user_id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to update user preferences: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/users/{user_id}/quests", response_model=List[QuestResponse])
+async def get_user_quests(
+    user_id: str = Path(..., description="User ID"),
+    quest_type: Optional[str] = Query(None, description="Filter by quest type (daily_task, email_based)")
+):
+    """Get user's quests, optionally filtered by type"""
+    try:
+        quests = db_manager.get_user_quests(user_id, quest_type=quest_type)
+        return [QuestResponse(**quest) for quest in quests]
+    except Exception as e:
+        logger.error(f"Failed to get user quests: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/users/{user_id}/process-emails", response_model=Dict[str, Any])
+async def process_user_emails(
+    user_id: str = Path(..., description="User ID"),
+    days: int = Query(7, description="Number of days to process emails")
+):
+    """Process emails for a specific user and generate goal-aligned quests"""
+    try:
+        # Get user preferences
+        user_preferences = db_manager.get_user_preferences(user_id)
+        if not user_preferences:
+            raise HTTPException(status_code=404, detail="User preferences not found. Complete onboarding first.")
+        
+        # Initialize email processor with user context
+        processor = EmailProcessor()
+        
+        # Process emails with user preferences
+        results = processor.process_emails_for_user(user_id, user_preferences, days=days)
+        
+        return {
+            "message": "Email processing completed",
+            "user_id": user_id,
+            "emails_processed": results.get('emails_processed', 0),
+            "quests_created": results.get('quests_created', 0),
+            "daily_quests_created": results.get('daily_quests_created', 0)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to process user emails: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Gamification endpoints
+@app.get("/users/{user_id}/stats", response_model=UserStats)
+async def get_user_stats(user_id: str = Path(..., description="User ID")):
+    """Get user's gamification stats"""
+    try:
+        stats = db_manager.get_user_stats(user_id)
+        if not stats:
+            raise HTTPException(status_code=404, detail="User stats not found. Complete onboarding first.")
+        
+        return UserStats(**stats)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get user stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/users/{user_id}/quests/{quest_id}/complete", response_model=QuestCompletionResponse)
+async def complete_quest(
+    user_id: str = Path(..., description="User ID"),
+    quest_id: int = Path(..., description="Quest ID")
+):
+    """Complete a quest and award XP"""
+    try:
+        result = db_manager.complete_quest(quest_id, user_id)
+        
+        # Create celebration message
+        message = f"Quest completed! +{result['xp_reward']} XP"
+        if result['level_ups'] > 0:
+            message += f" 🎉 LEVEL UP! You're now level {result['new_level']}!"
+        if result['streak_days'] > 1:
+            message += f" 🔥 {result['streak_days']} day streak!"
+        
+        return QuestCompletionResponse(
+            quest_id=result['quest_id'],
+            xp_reward=result['xp_reward'],
+            new_level=result['new_level'],
+            level_ups=result['level_ups'],
+            new_total_xp=result['new_total_xp'],
+            new_current_xp=result['new_current_xp'],
+            streak_days=result['streak_days'],
+            message=message
+        )
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to complete quest: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/users/{user_id}/leaderboard", response_model=List[Dict[str, Any]])
+async def get_leaderboard(
+    user_id: str = Path(..., description="User ID"),
+    limit: int = Query(10, description="Number of top users to return")
+):
+    """Get leaderboard of top users by level and XP"""
+    try:
+        # This would require a more complex query to get all users
+        # For now, return the current user's stats
+        stats = db_manager.get_user_stats(user_id)
+        if not stats:
+            raise HTTPException(status_code=404, detail="User stats not found")
+        
+        return [{
+            "user_id": user_id,
+            "level": stats['level'],
+            "total_xp": stats['total_xp'],
+            "quests_completed": stats['quests_completed'],
+            "streak_days": stats['streak_days']
+        }]
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get leaderboard: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Create AgentOS for advanced agent functionality
