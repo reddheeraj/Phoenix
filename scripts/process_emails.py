@@ -54,8 +54,12 @@ class EmailProcessor:
             # Store emails in database
             logger.info("Storing emails in database...")
             stored_emails = 0
-            for email in emails:
+            for i, email in enumerate(emails):
                 try:
+                    # Debug logging for first few emails
+                    if i < 3:
+                        logger.info(f"Email {i}: sender='{email.get('sender', 'MISSING')}', subject='{email.get('subject', 'MISSING')}', body_length={len(email.get('body', ''))}, received_date={email.get('received_date', 'MISSING')}")
+                    
                     email_id = self.db_manager.add_email(
                         email_id=email['email_id'],
                         sender=email['sender'],
@@ -134,8 +138,8 @@ class EmailProcessor:
             processing_datetime = datetime.now()
             self.db_manager.log_processing(
                 last_processed_datetime=processing_datetime,
-                emails_processed_count=len(unprocessed_emails),
-                quests_created_count=quests_created
+                emails_processed=len(unprocessed_emails),
+                quests_created=quests_created
             )
             
             logger.info(f"Email processing completed:")

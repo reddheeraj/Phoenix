@@ -47,7 +47,7 @@ BEDROCK_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
 
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_CLIENT_SECRET=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
 
 # Database Configuration
 DB_PATH=./solo_leveling.db

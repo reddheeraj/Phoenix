@@ -33,12 +33,25 @@ class DatabaseManager:
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
+                
+                # Check if email already exists
+                cursor.execute("SELECT id, processed FROM emails WHERE email_id = ?", (email_id,))
+                existing = cursor.fetchone()
+                
+                if existing:
+                    # Email already exists, return existing ID
+                    logger.info(f"Email {email_id} already exists with processed={existing[1]}")
+                    return existing[0]
+                
+                # Insert new email
                 cursor.execute("""
-                    INSERT OR IGNORE INTO emails (email_id, sender, subject, body, received_date)
+                    INSERT INTO emails (email_id, sender, subject, body, received_date)
                     VALUES (?, ?, ?, ?, ?)
                 """, (email_id, sender, subject, body, received_date))
                 conn.commit()
-                return cursor.lastrowid
+                new_id = cursor.lastrowid
+                logger.info(f"Added new email {email_id} with ID {new_id}")
+                return new_id
         except Exception as e:
             logger.error(f"Failed to add email: {e}")
             raise
