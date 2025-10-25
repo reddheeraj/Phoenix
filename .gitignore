@@ -21,7 +21,7 @@ wheels/
 *.egg
 MANIFEST
 
-*.json
+*.keys.json
 
 # Virtual environments
 .env
