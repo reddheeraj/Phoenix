@@ -306,14 +306,16 @@ class DatabaseManager:
                 if quest_type:
                     cursor.execute("""
                         SELECT id, email_id, title, description, quest_type, quest_category, 
-                               importance, urgency, deadline, event_duration_minutes, status, created_at
+                               importance, urgency, deadline, event_duration_minutes, 
+                               calendar_event_id, status, created_at
                         FROM quests WHERE user_id = ? AND quest_type = ?
                         ORDER BY created_at DESC
                     """, (user_id, quest_type))
                 else:
                     cursor.execute("""
                         SELECT id, email_id, title, description, quest_type, quest_category, 
-                               importance, urgency, deadline, event_duration_minutes, status, created_at
+                               importance, urgency, deadline, event_duration_minutes, 
+                               calendar_event_id, status, created_at
                         FROM quests WHERE user_id = ?
                         ORDER BY created_at DESC
                     """, (user_id,))

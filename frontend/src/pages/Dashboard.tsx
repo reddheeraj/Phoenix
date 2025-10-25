@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, LogOut, Flame, Target, Zap, Mail, RefreshCw } from 'lucide-react';
+import { LogOut, Flame, Target, Zap, Mail, RefreshCw } from 'lucide-react';
 import { FloatingOrbs } from '@/components/FloatingOrbs';
 import { PlayerCard } from '@/components/PlayerCard';
 import { QuestCard } from '@/components/QuestCard';
 import { LevelUpModal } from '@/components/LevelUpModal';
+import { QuestChat } from '@/components/QuestChat';
 import { useUserStore } from '@/store/userStore';
 import { useApiStore } from '@/store/apiStore';
-import { generateQuests } from '@/utils/questGenerator';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,20 +16,11 @@ export default function Dashboard() {
   const {
     user,
     preferences,
-    quests,
-    totalXP,
-    level,
-    completedCount,
-    streak,
     logout,
-    addQuests,
-    completeQuest,
   } = useUserStore();
 
   const {
-    user: apiUser,
     userStats,
-    userPreferences,
     quests: apiQuests,
     isLoading,
     fetchUserStats,
@@ -42,36 +33,80 @@ export default function Dashboard() {
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [newLevel, setNewLevel] = useState(1);
   const [questFilter, setQuestFilter] = useState<'all' | 'daily_task' | 'email_based'>('all');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // Initialize user data on mount
   useEffect(() => {
-    // If no preferences, redirect to onboarding
-    if (!preferences) {
+    if (!user || !preferences) {
       navigate('/onboarding');
+      return;
     }
-  }, [preferences, navigate]);
 
-  const handleGenerateQuests = () => {
-    if (!preferences) return;
+    const initializeData = async () => {
+      try {
+        // Fetch user preferences to check if user exists in backend
+        await fetchUserPreferences(user.email);
+        
+        // Fetch user stats
+        await fetchUserStats(user.email);
+        
+        // Fetch user quests
+        await fetchUserQuests(user.email);
+        
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize user data:', error);
+        toast.error('Failed to load your data');
+      }
+    };
 
-    const newQuests = generateQuests(
-      preferences.focusAreas,
-      preferences.difficulty,
-      5
-    );
+    if (!isInitialized) {
+      initializeData();
+    }
+  }, [user, preferences, navigate, isInitialized, fetchUserPreferences, fetchUserStats, fetchUserQuests]);
 
-    addQuests(newQuests);
-    toast.success('New quests generated!');
+  const handleSyncEmails = async () => {
+    if (!user) return;
+    
+    setIsSyncing(true);
+    try {
+      await processUserEmails(user.email, 7); // Process last 7 days
+      toast.success('Emails synced successfully! New quests may have been created.');
+      
+      // Refresh quests after syncing
+      await fetchUserQuests(user.email);
+    } catch (error) {
+      console.error('Failed to sync emails:', error);
+      toast.error('Failed to sync emails');
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
-  const handleCompleteQuest = (questId: string) => {
-    const result = completeQuest(questId);
-
-    if (result?.leveledUp) {
-      setNewLevel(result.newLevel);
-      setShowLevelUpModal(true);
+  const handleCompleteQuest = async (questId: string) => {
+    if (!user) return;
+    
+    try {
+      const result = await apiCompleteQuest(user.email, parseInt(questId));
+      
+      if (result) {
+        // Check for level ups
+        if (result.level_ups > 0) {
+          setNewLevel(result.new_level);
+          setShowLevelUpModal(true);
+        }
+        
+        toast.success(`Quest completed! +${result.xp_reward} XP earned!`);
+        
+        // Refresh user stats and quests
+        await fetchUserStats(user.email);
+        await fetchUserQuests(user.email);
+      }
+    } catch (error) {
+      console.error('Failed to complete quest:', error);
+      toast.error('Failed to complete quest');
     }
-
-    toast.success('Quest completed! XP earned!');
   };
 
   const handleLogout = () => {
@@ -80,30 +115,55 @@ export default function Dashboard() {
     toast.success('Logged out successfully');
   };
 
-  const activeQuests = quests.filter((q) => q.status === 'active');
-  const completedQuests = quests.filter((q) => q.status === 'completed');
+  // Filter quests based on selected filter
+  const filteredQuests = questFilter === 'all' 
+    ? apiQuests 
+    : apiQuests.filter(q => q.quest_type === questFilter);
+  
+  const activeQuests = filteredQuests.filter((q) => q.status === 'pending' || q.status === 'in_progress');
+  const completedQuests = filteredQuests.filter((q) => q.status === 'completed');
 
   if (!user || !preferences) {
     return null;
   }
 
-  const stats = [
+  // Use backend stats if available, otherwise show loading state
+  const stats = userStats ? [
     {
       icon: Flame,
       label: 'Streak',
-      value: `${streak} days`,
+      value: `${userStats.streak_days} days`,
       color: '#F59E0B',
     },
     {
       icon: Target,
       label: 'Completed',
-      value: completedCount,
+      value: userStats.quests_completed,
       color: '#3B82F6',
     },
     {
       icon: Zap,
       label: 'Total XP',
-      value: totalXP,
+      value: userStats.total_xp,
+      color: '#06B6D4',
+    },
+  ] : [
+    {
+      icon: Flame,
+      label: 'Streak',
+      value: '0 days',
+      color: '#F59E0B',
+    },
+    {
+      icon: Target,
+      label: 'Completed',
+      value: 0,
+      color: '#3B82F6',
+    },
+    {
+      icon: Zap,
+      label: 'Total XP',
+      value: 0,
       color: '#06B6D4',
     },
   ];
@@ -137,23 +197,67 @@ export default function Dashboard() {
             <PlayerCard
               name={user.name}
               picture={user.picture}
-              level={level}
-              totalXP={totalXP}
+              level={userStats?.level || 1}
+              totalXP={userStats?.total_xp || 0}
             />
 
-            {/* Generate Quests Button */}
+            {/* Sync Emails Button */}
             <motion.button
-              onClick={handleGenerateQuests}
-              className="w-full py-5 rounded-2xl gradient-bg shine-effect font-heading font-bold text-lg text-white shadow-2xl flex items-center justify-center gap-3"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              onClick={handleSyncEmails}
+              disabled={isSyncing || isLoading}
+              className="w-full py-5 rounded-2xl gradient-bg shine-effect font-heading font-bold text-lg text-white shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ scale: isSyncing ? 1 : 1.02 }}
+              whileTap={{ scale: isSyncing ? 1 : 0.98 }}
               style={{
                 boxShadow: '0 10px 40px -10px hsl(var(--glow-primary)), 0 0 60px -20px hsl(var(--glow-secondary))',
               }}
             >
-              <Plus className="w-6 h-6" />
-              Generate New Quests
+              {isSyncing ? (
+                <>
+                  <RefreshCw className="w-6 h-6 animate-spin" />
+                  Syncing Emails...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-6 h-6" />
+                  Sync Emails & Generate Quests
+                </>
+              )}
             </motion.button>
+
+            {/* Quest Filter Tabs */}
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setQuestFilter('all')}
+                className={`px-4 py-2 rounded-lg font-heading font-semibold transition-all ${
+                  questFilter === 'all'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white'
+                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                All Quests
+              </button>
+              <button
+                onClick={() => setQuestFilter('daily_task')}
+                className={`px-4 py-2 rounded-lg font-heading font-semibold transition-all ${
+                  questFilter === 'daily_task'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white'
+                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                Daily Tasks
+              </button>
+              <button
+                onClick={() => setQuestFilter('email_based')}
+                className={`px-4 py-2 rounded-lg font-heading font-semibold transition-all ${
+                  questFilter === 'email_based'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white'
+                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                Email Quests
+              </button>
+            </div>
 
             {/* Active Quests */}
             {activeQuests.length > 0 && (
@@ -293,6 +397,9 @@ export default function Dashboard() {
         level={newLevel}
         onClose={() => setShowLevelUpModal(false)}
       />
+
+      {/* Quest Chat */}
+      <QuestChat />
     </div>
   );
 }
