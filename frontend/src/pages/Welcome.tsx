@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Sword, Target, Zap, Trophy } from 'lucide-react';
 import { FloatingOrbs } from '@/components/FloatingOrbs';
 import { useUserStore } from '@/store/userStore';
+import { useApiStore } from '@/store/apiStore';
 import { toast } from 'sonner';
 
 interface GoogleCredentialResponse {
@@ -21,19 +22,29 @@ interface DecodedToken {
 export default function Welcome() {
   const navigate = useNavigate();
   const { user, preferences, setUser } = useUserStore();
+  const { fetchUserPreferences } = useApiStore();
 
   useEffect(() => {
-    // If already logged in, redirect
+    // If already logged in, check backend for user preferences
     if (user) {
-      if (preferences) {
-        navigate('/dashboard');
-      } else {
-        navigate('/onboarding');
-      }
+      const checkUserPreferences = async () => {
+        try {
+          // Try to fetch user preferences from backend
+          await fetchUserPreferences(user.email);
+          // If successful, user exists in backend - go to dashboard
+          navigate('/dashboard');
+        } catch (error) {
+          // If user doesn't exist in backend, go to onboarding
+          console.log('User not found in backend, redirecting to onboarding');
+          navigate('/onboarding');
+        }
+      };
+      
+      checkUserPreferences();
     }
-  }, [user, preferences, navigate]);
+  }, [user, navigate, fetchUserPreferences]);
 
-  const handleGoogleSuccess = (response: GoogleCredentialResponse) => {
+  const handleGoogleSuccess = async (response: GoogleCredentialResponse) => {
     try {
       if (!response.credential) {
         throw new Error('No credential received');
@@ -52,10 +63,14 @@ export default function Welcome() {
 
       toast.success(`Welcome, ${decoded.name}!`);
 
-      // Navigate based on preferences
-      if (preferences) {
+      // Check if user exists in backend
+      try {
+        await fetchUserPreferences(decoded.email);
+        // User exists in backend - go to dashboard
         navigate('/dashboard');
-      } else {
+      } catch (error) {
+        // User doesn't exist in backend - go to onboarding
+        console.log('New user, redirecting to onboarding');
         navigate('/onboarding');
       }
     } catch (error) {

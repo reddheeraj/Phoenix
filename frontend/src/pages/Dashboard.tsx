@@ -42,8 +42,8 @@ export default function Dashboard() {
 
   // Initialize user data on mount
   useEffect(() => {
-    if (!user || !preferences) {
-      navigate('/onboarding');
+    if (!user) {
+      navigate('/');
       return;
     }
 
@@ -62,13 +62,15 @@ export default function Dashboard() {
       } catch (error) {
         console.error('Failed to initialize user data:', error);
         toast.error('Failed to load your data');
+        // If user doesn't exist in backend, redirect to onboarding
+        navigate('/onboarding');
       }
     };
 
     if (!isInitialized) {
       initializeData();
     }
-  }, [user, preferences, navigate, isInitialized, fetchUserPreferences, fetchUserStats, fetchUserQuests]);
+  }, [user, navigate, isInitialized, fetchUserPreferences, fetchUserStats, fetchUserQuests]);
 
   const handleSyncEmails = async () => {
     if (!user) return;
@@ -153,7 +155,7 @@ export default function Dashboard() {
   const activeQuests = filteredQuests.filter((q) => q.status === 'pending' || q.status === 'in_progress');
   const completedQuests = filteredQuests.filter((q) => q.status === 'completed');
 
-  if (!user || !preferences) {
+  if (!user) {
     return null;
   }
 
