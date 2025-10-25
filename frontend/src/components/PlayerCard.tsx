@@ -33,29 +33,27 @@ export const PlayerCard = ({ name, picture, level, totalXP, currentXP }: PlayerC
             className="w-24 h-24 rounded-full border-2 border-white/30 relative z-10"
           />
 
+        </motion.div>
+
+        {/* Player Info */}
+        <div className="flex-1 flex items-center justify-between">
+          <h2 className="font-heading text-3xl font-bold text-foreground">
+            {name}
+          </h2>
+          
           {/* Level Badge */}
           <motion.div
-            className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full gradient-bg flex items-center justify-center shadow-lg z-20"
+            className="w-24 h-24 rounded-full gradient-bg flex items-center justify-center shadow-lg"
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
           >
             <div className="flex flex-col items-center">
-              <Sparkles className="w-3 h-3 fill-white text-white" />
-              <span className="font-heading text-xs font-bold text-white">
+              <Sparkles className="w-6 h-6 fill-white text-white" />
+              <span className="font-heading text-xl font-bold text-white">
                 {level}
               </span>
             </div>
           </motion.div>
-        </motion.div>
-
-        {/* Player Info */}
-        <div className="flex-1">
-          <h2 className="font-heading text-3xl font-bold text-foreground mb-1">
-            {name}
-          </h2>
-          <p className="text-muted-foreground font-body">
-            Level {level} Adventurer
-          </p>
         </div>
       </div>
 

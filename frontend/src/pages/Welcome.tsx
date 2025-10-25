@@ -99,8 +99,8 @@ export default function Welcome() {
     },
     {
       icon: Zap,
-      title: 'Earn AP',
-      description: 'Gain aura points for every completed quest',
+      title: 'Earn XP',
+      description: 'Gain xp for every completed quest',
       gradient: 'from-purple-500 to-pink-500',
     },
     {
@@ -149,13 +149,10 @@ export default function Welcome() {
           <h1 className="font-heading text-6xl md:text-8xl font-black mb-4">
             <span className="gradient-text">PHOENIX</span>
           </h1>
-          <h2 className="font-heading text-4xl md:text-6xl font-bold text-white mb-6" style={{ textShadow: '0 0 30px rgba(255,255,255,0.3)' }}>
-            AURA FARMING
-          </h2>
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-body">
-            Transform your daily tasks into epic quests. Aura farm, and achieve your goals with an anime-inspired productivity system.
+            Transform your life into epic quests. Level up and achieve your goals.
           </p>
         </motion.div>
 
