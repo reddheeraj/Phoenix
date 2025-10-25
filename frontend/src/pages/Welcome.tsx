@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import { Sword, Target, Zap, Trophy } from 'lucide-react';
+import { Target, Zap, Trophy } from 'lucide-react';
 import { FloatingOrbs } from '@/components/FloatingOrbs';
 import { useUserStore } from '@/store/userStore';
 import { toast } from 'sonner';
@@ -73,8 +73,8 @@ export default function Welcome() {
     },
     {
       icon: Zap,
-      title: 'Earn XP',
-      description: 'Gain experience points for every completed quest',
+      title: 'Earn AP',
+      description: 'Gain aura points for every completed quest',
       gradient: 'from-purple-500 to-pink-500',
     },
     {
@@ -99,31 +99,37 @@ export default function Welcome() {
         >
           {/* Hero Icon */}
           <motion.div
-            className="inline-flex items-center justify-center w-28 h-28 rounded-3xl gradient-bg mb-8 shadow-2xl"
-            style={{ boxShadow: '0 0 40px hsl(var(--glow-primary)), 0 0 80px hsl(var(--glow-secondary))' }}
-            animate={{
-              rotate: [0, 360],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              rotate: { duration: 20, repeat: Infinity, ease: 'linear' },
-              scale: { duration: 2, repeat: Infinity },
+            className="inline-flex items-center justify-center w-48 h-48 md:w-56 md:h-56 mb-4"
+            // animate={{
+            //   rotate: [0, 360],
+            //   scale: [1, 1.1, 1],
+            // }}
+            // transition={{
+            //   rotate: { duration: 20, repeat: Infinity, ease: 'linear' },
+            //   scale: { duration: 2, repeat: Infinity },
+            // }}
+            style={{
+              filter: 'drop-shadow(0 0 30px rgba(139, 92, 246, 0.8)) drop-shadow(0 0 60px rgba(99, 102, 241, 0.6))',
             }}
           >
-            <Sword className="w-14 h-14 text-white" />
+            <img 
+              src="/phoenix-logo.png" 
+              alt="Phoenix Logo" 
+              className="w-full h-full object-contain"
+            />
           </motion.div>
 
           {/* Title */}
           <h1 className="font-heading text-6xl md:text-8xl font-black mb-4">
-            <span className="gradient-text">QUEST</span>
+            <span className="gradient-text">PHOENIX</span>
           </h1>
           <h2 className="font-heading text-4xl md:text-6xl font-bold text-white mb-6" style={{ textShadow: '0 0 30px rgba(255,255,255,0.3)' }}>
-            LEVELING SYSTEM
+            AURA FARMING
           </h2>
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-body">
-            Transform your daily tasks into epic quests. Earn XP, level up, and achieve your goals with an anime-inspired productivity system.
+            Transform your daily tasks into epic quests. Aura farm, and achieve your goals with an anime-inspired productivity system.
           </p>
         </motion.div>
 

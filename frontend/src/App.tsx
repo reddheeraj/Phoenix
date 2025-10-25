@@ -14,7 +14,7 @@ import Dashboard from './pages/Dashboard';
 const queryClient = new QueryClient();
 
 // Google Client ID - Replace with your own
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '271595121987-jf5sh78h3ee6q41k13rcjcng4h70df46.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '271595121987-jf5sh78h3ee6q41k13rcjcng4h70df46.apps.googleusercontent.com';
 
 // Inner component that uses the store - must be inside BrowserRouter
 const AppRoutes = () => {
