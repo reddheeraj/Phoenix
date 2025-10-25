@@ -276,6 +276,16 @@ async def user_onboarding(request: OnboardingRequest):
         logger.error(f"Failed to complete user onboarding: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/users/{user_id}/exists")
+async def check_user_exists(user_id: str = Path(..., description="User ID")):
+    """Check if user exists in the database"""
+    try:
+        preferences = db_manager.get_user_preferences(user_id)
+        return {"exists": preferences is not None}
+    except Exception as e:
+        logger.error(f"Failed to check user existence: {e}")
+        return {"exists": False}
+
 @app.get("/users/{user_id}/preferences", response_model=UserPreferences)
 async def get_user_preferences(user_id: str = Path(..., description="User ID")):
     """Get user preferences"""

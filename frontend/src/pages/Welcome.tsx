@@ -22,27 +22,32 @@ interface DecodedToken {
 export default function Welcome() {
   const navigate = useNavigate();
   const { user, preferences, setUser } = useUserStore();
-  const { fetchUserPreferences } = useApiStore();
+  const { checkUserExists } = useApiStore();
 
   useEffect(() => {
-    // If already logged in, check backend for user preferences
+    // If already logged in, check if user exists in backend
     if (user) {
-      const checkUserPreferences = async () => {
+      const checkUserExistence = async () => {
         try {
-          // Try to fetch user preferences from backend
-          await fetchUserPreferences(user.email);
-          // If successful, user exists in backend - go to dashboard
-          navigate('/dashboard');
+          const userExists = await checkUserExists(user.email);
+          if (userExists) {
+            // User exists in backend - go to dashboard
+            navigate('/dashboard');
+          } else {
+            // User doesn't exist in backend - go to onboarding
+            console.log('User not found in backend, redirecting to onboarding');
+            navigate('/onboarding');
+          }
         } catch (error) {
-          // If user doesn't exist in backend, go to onboarding
-          console.log('User not found in backend, redirecting to onboarding');
+          console.error('Failed to check user existence:', error);
+          // On error, assume user doesn't exist and go to onboarding
           navigate('/onboarding');
         }
       };
       
-      checkUserPreferences();
+      checkUserExistence();
     }
-  }, [user, navigate, fetchUserPreferences]);
+  }, [user, navigate, checkUserExists]);
 
   const handleGoogleSuccess = async (response: GoogleCredentialResponse) => {
     try {
@@ -63,16 +68,22 @@ export default function Welcome() {
 
       toast.success(`Welcome, ${decoded.name}!`);
 
-      // Check if user exists in backend
-      try {
-        await fetchUserPreferences(decoded.email);
-        // User exists in backend - go to dashboard
-        navigate('/dashboard');
-      } catch (error) {
-        // User doesn't exist in backend - go to onboarding
-        console.log('New user, redirecting to onboarding');
-        navigate('/onboarding');
-      }
+          // Check if user exists in backend
+          try {
+            const userExists = await checkUserExists(decoded.email);
+            if (userExists) {
+              // User exists in backend - go to dashboard
+              navigate('/dashboard');
+            } else {
+              // User doesn't exist in backend - go to onboarding
+              console.log('New user, redirecting to onboarding');
+              navigate('/onboarding');
+            }
+          } catch (error) {
+            console.error('Failed to check user existence:', error);
+            // On error, assume user doesn't exist and go to onboarding
+            navigate('/onboarding');
+          }
     } catch (error) {
       console.error('Google login error:', error);
       toast.error('Failed to sign in. Please try again.');

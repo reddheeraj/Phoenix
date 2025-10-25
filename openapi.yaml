@@ -78,6 +78,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /users/{user_id}/exists:
+    get:
+      summary: Check if user exists
+      description: Check if user exists in the database
+      operationId: checkUserExists
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: User existence check completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exists:
+                    type: boolean
+                    description: Whether the user exists in the database
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /users/{user_id}/preferences:
     get:
       summary: Get user preferences

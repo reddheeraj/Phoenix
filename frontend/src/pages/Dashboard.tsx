@@ -24,6 +24,7 @@ export default function Dashboard() {
     userPreferences,
     quests: apiQuests,
     isLoading,
+    checkUserExists,
     fetchUserStats,
     fetchUserPreferences,
     fetchUserQuests,
@@ -48,30 +49,38 @@ export default function Dashboard() {
       return;
     }
 
-    const initializeData = async () => {
-      try {
-        // Fetch user preferences to check if user exists in backend
-        await fetchUserPreferences(user.email);
-        
-        // Fetch user stats
-        await fetchUserStats(user.email);
-        
-        // Fetch user quests
-        await fetchUserQuests(user.email);
-        
-        setIsInitialized(true);
-      } catch (error) {
-        console.error('Failed to initialize user data:', error);
-        toast.error('Failed to load your data');
-        // If user doesn't exist in backend, redirect to onboarding
-        navigate('/onboarding');
-      }
-    };
+      const initializeData = async () => {
+        try {
+          // Check if user exists in backend
+          const userExists = await checkUserExists(user.email);
+          if (!userExists) {
+            // User doesn't exist in backend, redirect to onboarding
+            navigate('/onboarding');
+            return;
+          }
+          
+          // Fetch user preferences
+          await fetchUserPreferences(user.email);
+          
+          // Fetch user stats
+          await fetchUserStats(user.email);
+          
+          // Fetch user quests
+          await fetchUserQuests(user.email);
+          
+          setIsInitialized(true);
+        } catch (error) {
+          console.error('Failed to initialize user data:', error);
+          toast.error('Failed to load your data');
+          // On error, redirect to onboarding
+          navigate('/onboarding');
+        }
+      };
 
     if (!isInitialized) {
       initializeData();
     }
-  }, [user, navigate, isInitialized, fetchUserPreferences, fetchUserStats, fetchUserQuests]);
+  }, [user, navigate, isInitialized, checkUserExists, fetchUserPreferences, fetchUserStats, fetchUserQuests]);
 
   const handleSyncEmails = async () => {
     if (!user) return;

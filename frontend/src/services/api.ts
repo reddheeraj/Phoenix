@@ -122,6 +122,13 @@ class ApiService {
     });
   }
 
+  // Check if user exists
+  async checkUserExists(userId: string) {
+    return this.request<{
+      exists: boolean;
+    }>(`/users/${userId}/exists`);
+  }
+
   // User stats
   async getUserStats(userId: string) {
     return this.request<{

@@ -28,6 +28,7 @@ interface ApiStore {
   completeOnboarding: (data: OnboardingRequest) => Promise<OnboardingResponse | null>;
   
   // User data
+  checkUserExists: (userId: string) => Promise<boolean>;
   fetchUserStats: (userId: string) => Promise<void>;
   fetchUserPreferences: (userId: string) => Promise<void>;
   updateUserPreferences: (userId: string, preferences: Partial<ApiUserPreferences>) => Promise<void>;
@@ -95,6 +96,17 @@ export const useApiStore = create<ApiStore>((set, get) => ({
       set({ error: errorMessage, isLoading: false });
       toast.error(`Onboarding failed: ${errorMessage}`);
       return null;
+    }
+  },
+
+  // Check if user exists
+  checkUserExists: async (userId) => {
+    try {
+      const response = await apiService.checkUserExists(userId);
+      return response.data?.exists || false;
+    } catch (error) {
+      console.error('Failed to check user existence:', error);
+      return false;
     }
   },
 
