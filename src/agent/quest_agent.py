@@ -2,7 +2,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
-from agno.models.anthropic import Claude
+from agno.models.aws import AwsBedrock
 from agno.tools import tool
 from src.database.db_manager import DatabaseManager
 from src.agent.agent_tools import QuestAgentTools
@@ -164,7 +164,7 @@ class QuestAgent:
         # Create the agent
         agent = Agent(
             name="Quest Master",
-            model=Claude(id="claude-3-5-sonnet-20241022"),
+            model=AwsBedrock(id="anthropic.claude-sonnet-4-5-20250929-v1:0"),
             description="A solo leveling quest management assistant that helps you track and manage your quests for self-improvement.",
             instructions=[
                 "You are a Quest Master in a solo leveling system. Your role is to help users manage their quests for self-improvement.",

@@ -10,8 +10,9 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Dict
 
-# Add src to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 
 from src.database.db_manager import DatabaseManager
 from src.gmail.gmail_client import GmailClient

@@ -23,7 +23,7 @@ class GmailClient:
         """Authenticate with Gmail API using OAuth2"""
         try:
             creds = None
-            token_path = 'credentials/token.json'
+            token_path = 'credentials/gmail_token.json'
             
             # Load existing credentials
             if os.path.exists(token_path):
@@ -34,9 +34,22 @@ class GmailClient:
                 if creds and creds.expired and creds.refresh_token:
                     creds.refresh(Request())
                 else:
+                    # Check if client_secret.json exists
+                    client_secret_path = 'credentials/client_secret.json'
+                    if not os.path.exists(client_secret_path):
+                        raise FileNotFoundError(
+                            f"OAuth credentials not found at {client_secret_path}. "
+                            "Please run 'python scripts/setup_oauth.py' to set up credentials."
+                        )
+                    
                     flow = InstalledAppFlow.from_client_secrets_file(
-                        'credentials/client_secret.json', self.SCOPES)
-                    creds = flow.run_local_server(port=0)
+                        client_secret_path, self.SCOPES)
+                    
+                    # Use a fixed port
+                    creds = flow.run_local_server(
+                        port=3000, 
+                        open_browser=True
+                    )
                 
                 # Save credentials for next run
                 os.makedirs('credentials', exist_ok=True)
