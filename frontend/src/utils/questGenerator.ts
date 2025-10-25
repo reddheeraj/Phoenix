@@ -25,7 +25,7 @@ export function generateQuests(
     description: template.description,
     rank: template.rank,
     xp: template.xp,
-    status: 'active' as const,
+    status: 'pending' as const,
     focusArea: template.focusArea,
     difficulty: template.difficulty,
     createdAt: new Date(),
@@ -47,4 +47,14 @@ export function getCurrentLevelXP(totalXP: number): number {
 export function getXPPercentage(totalXP: number): number {
   const currentLevelXP = getCurrentLevelXP(totalXP);
   return (currentLevelXP / 100) * 100;
+}
+
+// AP versions (same implementation, different names for display purposes)
+export function getCurrentLevelAP(totalAP: number): number {
+  return totalAP % 100;
+}
+
+export function getAPPercentage(totalAP: number): number {
+  const currentLevelAP = getCurrentLevelAP(totalAP);
+  return (currentLevelAP / 100) * 100;
 }

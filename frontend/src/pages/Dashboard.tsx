@@ -71,7 +71,7 @@ export default function Dashboard() {
       setShowLevelUpModal(true);
     }
 
-    toast.success('Quest completed! XP earned!');
+    toast.success('Quest completed! AP earned!');
   };
 
   const handleLogout = () => {
@@ -80,7 +80,7 @@ export default function Dashboard() {
     toast.success('Logged out successfully');
   };
 
-  const activeQuests = quests.filter((q) => q.status === 'active');
+  const activeQuests = quests.filter((q) => q.status === 'pending');
   const completedQuests = quests.filter((q) => q.status === 'completed');
 
   if (!user || !preferences) {
@@ -102,7 +102,7 @@ export default function Dashboard() {
     },
     {
       icon: Zap,
-      label: 'Total XP',
+      label: 'Total AP',
       value: totalXP,
       color: '#06B6D4',
     },
@@ -138,7 +138,7 @@ export default function Dashboard() {
               name={user.name}
               picture={user.picture}
               level={level}
-              totalXP={totalXP}
+              totalAP={totalXP}
             />
 
             {/* Generate Quests Button */}

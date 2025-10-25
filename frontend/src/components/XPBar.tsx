@@ -1,25 +1,25 @@
 import { motion } from 'framer-motion';
-import { getXPPercentage, getCurrentLevelXP } from '@/utils/questGenerator';
+import { getAPPercentage, getCurrentLevelAP } from '@/utils/questGenerator';
 
-interface XPBarProps {
-  totalXP: number;
+interface APBarProps {
+  totalAP: number;
 }
 
-export const XPBar = ({ totalXP }: XPBarProps) => {
-  const percentage = getXPPercentage(totalXP);
-  const currentXP = getCurrentLevelXP(totalXP);
+export const APBar = ({ totalAP }: APBarProps) => {
+  const percentage = getAPPercentage(totalAP);
+  const currentAP = getCurrentLevelAP(totalAP);
 
   return (
     <div className="w-full space-y-2">
       <div className="flex justify-between items-center text-sm">
-        <span className="text-muted-foreground font-body">XP Progress</span>
+        <span className="text-muted-foreground font-body">AP Progress</span>
         <span className="font-heading text-foreground">
-          {currentXP} / 100 XP
+          {currentAP} / 100 AP
         </span>
       </div>
       
       <div className="relative h-8 bg-black/30 rounded-full border border-white/10 overflow-hidden">
-        {/* XP Fill */}
+        {/* AP Fill */}
         <motion.div
           className="absolute inset-y-0 left-0 gradient-bg shine-effect"
           initial={{ width: 0 }}

@@ -58,11 +58,11 @@ export const QuestCard = ({ quest, onComplete }: QuestCardProps) => {
           {quest.description}
         </p>
 
-        {/* XP Badge */}
+        {/* AP Badge */}
         <div className="flex items-center gap-2 bg-accent/20 rounded-xl px-3 py-2 w-fit">
           <Zap className="w-4 h-4 fill-accent text-accent" />
           <span className="font-heading font-bold text-accent">
-            {quest.xp} XP
+            {quest.xp} AP
           </span>
         </div>
 

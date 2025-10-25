@@ -147,7 +147,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         : q
     );
 
-    // Add XP
+    // Add AP
     const newTotalXP = totalXP + quest.xp;
     const newLevel = calculateLevel(newTotalXP);
     const oldLevel = calculateLevel(totalXP);
@@ -184,7 +184,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     return { leveledUp, newLevel };
   },
 
-  // Add XP (for future use)
+  // Add AP (for future use)
   addXP: (amount) => {
     const { user, totalXP } = get();
     if (!user) return;

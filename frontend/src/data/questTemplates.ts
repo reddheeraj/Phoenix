@@ -10,7 +10,7 @@ interface QuestTemplate {
 }
 
 export const questTemplates: QuestTemplate[] = [
-  // STUDY - CASUAL (E rank, 10-25 XP)
+  // STUDY - CASUAL (E rank, 10-25 AP)
   {
     title: 'Review Notes',
     description: 'Review your notes for 15 minutes',
@@ -52,7 +52,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'casual',
   },
 
-  // STUDY - BALANCED (C rank, 50-100 XP)
+  // STUDY - BALANCED (C rank, 50-100 AP)
   {
     title: 'Deep Study Session',
     description: 'Complete a focused 45-minute study session',
@@ -94,7 +94,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'balanced',
   },
 
-  // STUDY - HARDCORE (A rank, 250-500 XP)
+  // STUDY - HARDCORE (A rank, 250-500 AP)
   {
     title: 'Master a Chapter',
     description: 'Complete all exercises and notes for an entire chapter',
@@ -136,7 +136,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'hardcore',
   },
 
-  // FITNESS - CASUAL (E rank, 10-25 XP)
+  // FITNESS - CASUAL (E rank, 10-25 AP)
   {
     title: 'Morning Stretch',
     description: 'Complete a 10-minute stretching routine',
@@ -178,7 +178,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'casual',
   },
 
-  // FITNESS - BALANCED (C rank, 50-100 XP)
+  // FITNESS - BALANCED (C rank, 50-100 AP)
   {
     title: 'Full Workout',
     description: 'Complete a 30-minute workout session',
@@ -220,7 +220,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'balanced',
   },
 
-  // FITNESS - HARDCORE (A rank, 250-500 XP)
+  // FITNESS - HARDCORE (A rank, 250-500 AP)
   {
     title: 'Intense Workout',
     description: 'Complete a 60-minute high-intensity workout',
@@ -262,7 +262,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'hardcore',
   },
 
-  // PRODUCTIVITY - CASUAL (E rank, 10-25 XP)
+  // PRODUCTIVITY - CASUAL (E rank, 10-25 AP)
   {
     title: 'Inbox Zero',
     description: 'Clear your email inbox',
@@ -304,7 +304,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'casual',
   },
 
-  // PRODUCTIVITY - BALANCED (C rank, 50-100 XP)
+  // PRODUCTIVITY - BALANCED (C rank, 50-100 AP)
   {
     title: 'Deep Work Session',
     description: 'Complete 2 hours of focused deep work',
@@ -346,7 +346,7 @@ export const questTemplates: QuestTemplate[] = [
     difficulty: 'balanced',
   },
 
-  // PRODUCTIVITY - HARDCORE (A rank, 250-500 XP)
+  // PRODUCTIVITY - HARDCORE (A rank, 250-500 AP)
   {
     title: 'Major Milestone',
     description: 'Complete a major project milestone',

@@ -8,7 +8,7 @@ export type QuestType = 'daily_task' | 'email_based';
 export type QuestCategory = 'daily' | 'work' | 'personal' | 'education' | 'health' | 'general';
 export type QuestImportance = 'daily' | 'weekly' | 'main_quest' | 'side_quest';
 export type QuestUrgency = 'low' | 'medium' | 'high' | 'critical';
-export type QuestStatus = 'pending' | 'in_progress' | 'completed';
+export type QuestStatus = 'pending' | 'completed';
 
 // API Quest interface (matches backend)
 export interface ApiQuest {
@@ -33,7 +33,7 @@ export interface Quest {
   title: string;
   description: string;
   rank: QuestRank;
-  xp: number;
+  xp: number; // Using xp internally but displayed as AP
   status: QuestStatus;
   focusArea: FocusArea;
   difficulty: Difficulty;
