@@ -165,7 +165,13 @@ class QuestAgent:
         # Create the agent
         agent = Agent(
             name="Quest Master",
-            model=AwsBedrock(id=settings.BEDROCK_MODEL_ID),
+            model=AwsBedrock(
+                id=settings.BEDROCK_MODEL_ID,
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                aws_session_token=settings.AWS_SESSION_TOKEN,
+                region_name=settings.AWS_REGION
+            ),
             description="A solo leveling quest management assistant that helps you track and manage your quests for self-improvement.",
             instructions=[
                 "You are a Quest Master in a solo leveling system. Your role is to help users manage their quests for self-improvement.",

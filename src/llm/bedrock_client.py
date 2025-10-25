@@ -212,8 +212,22 @@ Respond with a JSON object containing:
             response_body = json.loads(response['body'].read())
             content = response_body['content'][0]['text']
             
-            # Parse the JSON response
-            quest_analysis = json.loads(content)
+            # Try to parse the JSON response
+            try:
+                quest_analysis = json.loads(content)
+            except json.JSONDecodeError:
+                # If direct parsing fails, try to extract JSON from markdown code blocks
+                import re
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+                if json_match:
+                    quest_analysis = json.loads(json_match.group(1))
+                else:
+                    # Try to find JSON object in the content
+                    json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                    if json_match:
+                        quest_analysis = json.loads(json_match.group(0))
+                    else:
+                        raise
             
             logger.info("Goal-aligned quest analysis generated successfully")
             return quest_analysis
