@@ -1,0 +1,8 @@
+# Core dependencies
+requests>=2.31.0
+
+# Optional: For integration with leveling system
+# (These are already in the leveling-system/requirements.txt)
+# sqlalchemy>=2.0.0
+# alembic>=1.12.0
+
