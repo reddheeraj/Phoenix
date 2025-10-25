@@ -1,8 +1,9 @@
 # Core dependencies
 requests>=2.31.0
+python-dotenv>=1.0.0
 
-# Optional: For integration with leveling system
-# (These are already in the leveling-system/requirements.txt)
-# sqlalchemy>=2.0.0
-# alembic>=1.12.0
+# API Server
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
 

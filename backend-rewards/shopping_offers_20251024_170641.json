@@ -1,0 +1,622 @@
+[
+  {
+    "title": "Amazon Prime Student - 6 Months Free Trial",
+    "expiry": null,
+    "discount_percent": 100.0,
+    "estimated_value": 84.0,
+    "categories": [
+      "Subscription",
+      "Student",
+      "Streaming",
+      "Shopping"
+    ],
+    "terms": "Verify student status with .edu email. Then $7.49/month (50% off).",
+    "url": "https://www.amazon.com/amazonprime?_encoding=UTF8&primeCampaignId=studentWlpPrimeRedir",
+    "source_type": "api",
+    "scarcity_score": 0.3,
+    "relevance_score": 0.85
+  },
+  {
+    "title": "Amazon Today's Deals - Up to 50% Off",
+    "expiry": "2025-10-25T17:05:51.682188",
+    "discount_percent": null,
+    "estimated_value": 25.0,
+    "categories": [
+      "Shopping",
+      "General",
+      "Deal"
+    ],
+    "terms": "Lightning deals change throughout the day.",
+    "url": "https://www.amazon.com/gp/goldbox",
+    "source_type": "scrape",
+    "scarcity_score": 0.7,
+    "relevance_score": 0.6
+  },
+  {
+    "title": "Amazon Fresh - $10 Off First Grocery Order",
+    "expiry": "2025-11-23T17:05:51.682538",
+    "discount_percent": null,
+    "estimated_value": 10.0,
+    "categories": [
+      "Grocery",
+      "Shopping"
+    ],
+    "terms": "Prime members only. Min purchase may apply.",
+    "url": "https://www.amazon.com/alm/storefront?almBrandId=QW1hem9uIEZyZXNo",
+    "source_type": "api",
+    "scarcity_score": 0.5,
+    "relevance_score": 0.65
+  },
+  {
+    "title": "Nike Student Discount - 10% Off",
+    "expiry": null,
+    "discount_percent": 10.0,
+    "estimated_value": 10.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion",
+      "Student"
+    ],
+    "terms": "Verify student status through UNiDAYS. Valid on full-price items.",
+    "url": "https://www.nike.com/help/a/student-discount",
+    "source_type": "api",
+    "scarcity_score": 0.3,
+    "relevance_score": 0.85
+  },
+  {
+    "title": "Nike Sale - Discounts on 1000s of Styles",
+    "expiry": "2025-11-23T17:05:53.708031",
+    "discount_percent": null,
+    "estimated_value": 30.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion",
+      "Sale"
+    ],
+    "terms": "Shop sale section for current deals.",
+    "url": "https://www.nike.com/w/sale-3yaep",
+    "source_type": "scrape",
+    "scarcity_score": 0.6,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "Nike Membership - Free Shipping & Returns",
+    "expiry": null,
+    "discount_percent": null,
+    "estimated_value": 8.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion",
+      "Membership"
+    ],
+    "terms": "Free to join. Free standard shipping on orders $50+.",
+    "url": "https://www.nike.com/membership",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "15% Off Student Discount",
+    "expiry": null,
+    "discount_percent": 15.0,
+    "estimated_value": 15.0,
+    "categories": [
+      "Fashion",
+      "Clothing",
+      "Student"
+    ],
+    "terms": "Verify student status. Valid in-store and online. Excludes sale items.",
+    "url": "https://www2.hm.com/en_us/student-discount.html",
+    "source_type": "api",
+    "scarcity_score": 0.3,
+    "relevance_score": 0.8
+  },
+  {
+    "title": "Up to 70% Off Sale Items",
+    "expiry": "2025-11-07T17:06:25.602463",
+    "discount_percent": 70.0,
+    "estimated_value": 35.0,
+    "categories": [
+      "Fashion",
+      "Clothing",
+      "Sale"
+    ],
+    "terms": "End of season sale. While supplies last.",
+    "url": "https://www2.hm.com/en_us/sale.html",
+    "source_type": "scrape",
+    "scarcity_score": 0.7,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "$10 Off $40+ Purchase",
+    "expiry": "2025-11-03T17:06:25.604079",
+    "discount_percent": 25.0,
+    "estimated_value": 10.0,
+    "categories": [
+      "Fashion",
+      "Clothing"
+    ],
+    "terms": "Members only. Use code: SAVE10",
+    "url": "https://www2.hm.com/en_us/member.html",
+    "source_type": "scrape",
+    "scarcity_score": 0.6,
+    "relevance_score": 0.65
+  },
+  {
+    "title": "Free Shipping on Orders Over $40",
+    "expiry": null,
+    "discount_percent": null,
+    "estimated_value": 5.99,
+    "categories": [
+      "Fashion",
+      "Clothing"
+    ],
+    "terms": "Standard shipping. No code needed.",
+    "url": "https://www2.hm.com/en_us/customer-service/shipping.html",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.5
+  },
+  {
+    "title": "Up to 50% Off Sale Collection",
+    "expiry": "2025-11-14T17:06:27.226891",
+    "discount_percent": 50.0,
+    "estimated_value": 40.0,
+    "categories": [
+      "Fashion",
+      "Clothing",
+      "Sale"
+    ],
+    "terms": "End of season sale. Select styles.",
+    "url": "https://www.zara.com/us/en/sale",
+    "source_type": "scrape",
+    "scarcity_score": 0.65,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "Free Shipping on All Orders",
+    "expiry": "2025-10-31T17:06:27.228567",
+    "discount_percent": null,
+    "estimated_value": 4.95,
+    "categories": [
+      "Fashion",
+      "Clothing"
+    ],
+    "terms": "Limited time offer. All orders.",
+    "url": "https://www.zara.com/us/en/",
+    "source_type": "scrape",
+    "scarcity_score": 0.7,
+    "relevance_score": 0.6
+  },
+  {
+    "title": "New Arrivals - Special Launch Prices",
+    "expiry": "2025-10-29T17:06:27.229186",
+    "discount_percent": 20.0,
+    "estimated_value": 20.0,
+    "categories": [
+      "Fashion",
+      "Clothing",
+      "New"
+    ],
+    "terms": "New collection launch. Limited quantity.",
+    "url": "https://www.zara.com/us/en/new",
+    "source_type": "scrape",
+    "scarcity_score": 0.8,
+    "relevance_score": 0.65
+  },
+  {
+    "title": "Up to 40% Off Sale Sneakers",
+    "expiry": "2025-11-07T17:06:28.800833",
+    "discount_percent": 40.0,
+    "estimated_value": 40.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Sale"
+    ],
+    "terms": "Select styles. While supplies last.",
+    "url": "https://www.footlocker.com/category/sale.html",
+    "source_type": "scrape",
+    "scarcity_score": 0.7,
+    "relevance_score": 0.8
+  },
+  {
+    "title": "FLX Rewards - Free Shipping & Points",
+    "expiry": null,
+    "discount_percent": null,
+    "estimated_value": 8.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Membership"
+    ],
+    "terms": "Free to join. Earn points on every purchase.",
+    "url": "https://www.footlocker.com/customer-service/rewards.html",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.6
+  },
+  {
+    "title": "Buy 2, Get 1 50% Off",
+    "expiry": "2025-11-03T17:06:28.802638",
+    "discount_percent": 16.67,
+    "estimated_value": 25.0,
+    "categories": [
+      "Sneakers",
+      "Athletic"
+    ],
+    "terms": "Mix and match. Lower priced item discounted.",
+    "url": "https://www.footlocker.com/",
+    "source_type": "scrape",
+    "scarcity_score": 0.6,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "$25 Off First Purchase",
+    "expiry": "2025-11-23T17:06:30.380468",
+    "discount_percent": null,
+    "estimated_value": 25.0,
+    "categories": [
+      "Sneakers",
+      "Streetwear",
+      "Collectibles"
+    ],
+    "terms": "New users only. Min purchase $250. Use referral code.",
+    "url": "https://stockx.com/promo",
+    "source_type": "api",
+    "scarcity_score": 0.5,
+    "relevance_score": 0.8
+  },
+  {
+    "title": "Free Shipping on Orders Over $150",
+    "expiry": "2025-11-07T17:06:30.382205",
+    "discount_percent": null,
+    "estimated_value": 13.95,
+    "categories": [
+      "Sneakers",
+      "Streetwear",
+      "Collectibles"
+    ],
+    "terms": "Limited time. Standard shipping.",
+    "url": "https://stockx.com/shipping",
+    "source_type": "scrape",
+    "scarcity_score": 0.6,
+    "relevance_score": 0.65
+  },
+  {
+    "title": "Reduced Seller Fees - 8.5% (Usually 9.5%)",
+    "expiry": "2025-10-31T17:06:30.383261",
+    "discount_percent": 10.5,
+    "estimated_value": 10.0,
+    "categories": [
+      "Sneakers",
+      "Streetwear"
+    ],
+    "terms": "For sellers. Limited time promotion.",
+    "url": "https://stockx.com/sell",
+    "source_type": "api",
+    "scarcity_score": 0.7,
+    "relevance_score": 0.6
+  },
+  {
+    "title": "Apple Music - Free 1 Month Trial for Students",
+    "expiry": null,
+    "discount_percent": 100.0,
+    "estimated_value": 10.99,
+    "categories": [
+      "Student",
+      "Music",
+      "Streaming"
+    ],
+    "terms": "Verify student status. Then $5.99/month.",
+    "url": "https://www.apple.com/us/shop/browse/campaigns/education_pricing",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.85
+  },
+  {
+    "title": "Spotify Premium Student - 3 Months for $0.99",
+    "expiry": null,
+    "discount_percent": 90.0,
+    "estimated_value": 29.97,
+    "categories": [
+      "Student",
+      "Music",
+      "Streaming"
+    ],
+    "terms": "Students get Premium for $5.99/month after trial.",
+    "url": "https://www.spotify.com/us/student/",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.9
+  },
+  {
+    "title": "Adobe Creative Cloud - 60% Off for Students",
+    "expiry": null,
+    "discount_percent": 60.0,
+    "estimated_value": 39.99,
+    "categories": [
+      "Student",
+      "Software",
+      "Creative"
+    ],
+    "terms": "Students and teachers. Verify eligibility.",
+    "url": "https://www.adobe.com/creativecloud/buy/students.html",
+    "source_type": "api",
+    "scarcity_score": 0.3,
+    "relevance_score": 0.75
+  },
+  {
+    "title": "Microsoft 365 - Free for Students",
+    "expiry": null,
+    "discount_percent": 100.0,
+    "estimated_value": 69.99,
+    "categories": [
+      "Student",
+      "Software",
+      "Productivity"
+    ],
+    "terms": "Free Office apps with valid school email.",
+    "url": "https://www.microsoft.com/en-us/education/products/office",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.9
+  },
+  {
+    "title": "Amazon Prime Student - 6 Months Free",
+    "expiry": null,
+    "discount_percent": 100.0,
+    "estimated_value": 69.0,
+    "categories": [
+      "Student",
+      "Shopping",
+      "Streaming"
+    ],
+    "terms": "Then $7.49/month (50% off regular Prime).",
+    "url": "https://www.amazon.com/amazonprime?_encoding=UTF8&primeCampaignId=studentWlpPrimeRedir",
+    "source_type": "api",
+    "scarcity_score": 0.3,
+    "relevance_score": 0.85
+  },
+  {
+    "title": "Hulu Student - $1.99/Month (Save 70%)",
+    "expiry": null,
+    "discount_percent": 70.0,
+    "estimated_value": 5.99,
+    "categories": [
+      "Student",
+      "Streaming",
+      "Entertainment"
+    ],
+    "terms": "Verify student status annually.",
+    "url": "https://www.hulu.com/student",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.8
+  },
+  {
+    "title": "25% Off Sitewide",
+    "expiry": "2025-10-31T17:06:34.777366",
+    "discount_percent": 25.0,
+    "estimated_value": 25.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion"
+    ],
+    "terms": "Use code: SAVE25. Excludes new releases.",
+    "url": "https://www.newbalance.com/sale/",
+    "source_type": "scrape",
+    "scarcity_score": 0.65,
+    "relevance_score": 0.75
+  },
+  {
+    "title": "Up to 50% Off Sale Styles",
+    "expiry": "2025-11-07T17:06:34.779014",
+    "discount_percent": 50.0,
+    "estimated_value": 50.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion",
+      "Sale"
+    ],
+    "terms": "Select styles. Limited sizes.",
+    "url": "https://www.newbalance.com/sale/",
+    "source_type": "scrape",
+    "scarcity_score": 0.7,
+    "relevance_score": 0.8
+  },
+  {
+    "title": "Free Shipping on Orders Over $50",
+    "expiry": null,
+    "discount_percent": null,
+    "estimated_value": 7.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion"
+    ],
+    "terms": "Standard shipping. All orders.",
+    "url": "https://www.newbalance.com/customer-service/shipping-policy.html",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.5
+  },
+  {
+    "title": "Extra 10% Off for Email Signup",
+    "expiry": null,
+    "discount_percent": 10.0,
+    "estimated_value": 10.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion"
+    ],
+    "terms": "New subscribers only. First purchase.",
+    "url": "https://www.newbalance.com/",
+    "source_type": "api",
+    "scarcity_score": 0.4,
+    "relevance_score": 0.65
+  },
+  {
+    "title": "Buy 2, Get 20% Off",
+    "expiry": "2025-11-03T17:06:34.780041",
+    "discount_percent": 20.0,
+    "estimated_value": 20.0,
+    "categories": [
+      "Sneakers",
+      "Athletic",
+      "Fashion"
+    ],
+    "terms": "Automatically applied at checkout. Mix and match.",
+    "url": "https://www.newbalance.com/deals/",
+    "source_type": "scrape",
+    "scarcity_score": 0.6,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "DashPass Student - Free Until Graduation",
+    "expiry": "2026-10-24T17:06:36.367773",
+    "discount_percent": 100.0,
+    "estimated_value": 119.88,
+    "categories": [
+      "Subscription",
+      "Student",
+      "Food",
+      "Delivery"
+    ],
+    "terms": "Verify student status. Free DashPass membership for eligible students.",
+    "url": "https://www.doordash.com/dashpass/student/",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.95
+  },
+  {
+    "title": "DoorDash New Customer Offer",
+    "expiry": "2025-11-23T17:06:36.443214",
+    "discount_percent": null,
+    "estimated_value": 10.0,
+    "categories": [
+      "Food",
+      "Delivery"
+    ],
+    "terms": "New customers only. Check app for current offer.",
+    "url": "https://www.doordash.com/",
+    "source_type": "api",
+    "scarcity_score": 0.5,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "Free Delivery on Pickup Orders",
+    "expiry": null,
+    "discount_percent": null,
+    "estimated_value": 5.99,
+    "categories": [
+      "Food",
+      "Delivery"
+    ],
+    "terms": "Always free delivery on pickup orders.",
+    "url": "https://www.doordash.com/pickup/",
+    "source_type": "api",
+    "scarcity_score": 0.2,
+    "relevance_score": 0.6
+  },
+  {
+    "title": "Uber One Student - 1 Month Free + 50% Off",
+    "expiry": null,
+    "discount_percent": 50.0,
+    "estimated_value": 9.99,
+    "categories": [
+      "Subscription",
+      "Student",
+      "Food",
+      "Delivery"
+    ],
+    "terms": "Verify student status. $4.99/month after trial (50% off regular).",
+    "url": "https://www.uber.com/us/en/u/uber-one/",
+    "source_type": "api",
+    "scarcity_score": 0.3,
+    "relevance_score": 0.9
+  },
+  {
+    "title": "$25 Off First Uber Eats Order",
+    "expiry": "2025-11-23T17:06:38.257247",
+    "discount_percent": null,
+    "estimated_value": 25.0,
+    "categories": [
+      "Food",
+      "Delivery"
+    ],
+    "terms": "New users only. Min order $35. Check app for code.",
+    "url": "https://www.ubereats.com/",
+    "source_type": "api",
+    "scarcity_score": 0.5,
+    "relevance_score": 0.8
+  },
+  {
+    "title": "Free Delivery on Orders Over $15",
+    "expiry": "2025-11-07T17:06:38.257995",
+    "discount_percent": null,
+    "estimated_value": 4.99,
+    "categories": [
+      "Food",
+      "Delivery"
+    ],
+    "terms": "Uber One members. Select restaurants.",
+    "url": "https://www.ubereats.com/",
+    "source_type": "scrape",
+    "scarcity_score": 0.6,
+    "relevance_score": 0.6
+  },
+  {
+    "title": "Instacart+ Student - 1 Year Free",
+    "expiry": null,
+    "discount_percent": 100.0,
+    "estimated_value": 99.0,
+    "categories": [
+      "Grocery",
+      "Delivery",
+      "Student",
+      "Subscription"
+    ],
+    "terms": "Verify student status with SheerID. Unlimited free delivery on $35+ orders.",
+    "url": "https://www.instacart.com/store/partner_recipe/student",
+    "source_type": "api",
+    "scarcity_score": 0.3,
+    "relevance_score": 0.85
+  },
+  {
+    "title": "$20 Off First Instacart Order",
+    "expiry": "2025-11-07T17:06:39.843359",
+    "discount_percent": 57.0,
+    "estimated_value": 20.0,
+    "categories": [
+      "Grocery",
+      "Delivery"
+    ],
+    "terms": "New customers. Min purchase $35.",
+    "url": "https://www.instacart.com/",
+    "source_type": "api",
+    "scarcity_score": 0.5,
+    "relevance_score": 0.7
+  },
+  {
+    "title": "Free Delivery on $35+ Orders",
+    "expiry": "2025-10-31T17:06:39.844530",
+    "discount_percent": null,
+    "estimated_value": 5.99,
+    "categories": [
+      "Grocery",
+      "Delivery"
+    ],
+    "terms": "Limited time. Check app for availability.",
+    "url": "https://www.instacart.com/",
+    "source_type": "scrape",
+    "scarcity_score": 0.6,
+    "relevance_score": 0.6
+  }
+]

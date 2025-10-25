@@ -1,37 +1,25 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-*.keys.json
-
-# Virtual environments
-.env
-.env.template
-.venv
-env/
 venv/
+env/
 ENV/
-env.bak/
-venv.bak/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.npm
+.eslintcache
 
 # IDE
 .vscode/
@@ -42,27 +30,16 @@ venv.bak/
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# Project specific
-credentials/
-*.db
-*.sqlite
-*.sqlite3
-.env
-.env.local
-.env.production
 
 # Logs
 *.log
-logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
 # Temporary files
-tmp/
-temp/
-
+*.tmp
+*.temp

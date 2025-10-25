@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, LogOut, Flame, Target, Zap } from 'lucide-react';
+import { Plus, LogOut, Flame, Target, Zap, Dumbbell, Gift } from 'lucide-react';
 import { FloatingOrbs } from '@/components/FloatingOrbs';
 import { PlayerCard } from '@/components/PlayerCard';
 import { QuestCard } from '@/components/QuestCard';
@@ -9,6 +9,11 @@ import { useUserStore } from '@/store/userStore';
 import { generateQuests } from '@/utils/questGenerator';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { workoutQuestsAPI, Quest as WorkoutQuest, UserStats } from '@/lib/api/workout-quests';
+import QuestDetailsDialog from '@/components/workout-quests/QuestDetailsDialog';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -23,10 +28,19 @@ export default function Dashboard() {
     logout,
     addQuests,
     completeQuest,
+    addXP,
   } = useUserStore();
 
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [newLevel, setNewLevel] = useState(1);
+  
+  // Workout Quests State
+  const [workoutStats, setWorkoutStats] = useState<UserStats | null>(null);
+  const [activeWorkoutQuests, setActiveWorkoutQuests] = useState<WorkoutQuest[]>([]);
+  const [completedWorkoutQuests, setCompletedWorkoutQuests] = useState<WorkoutQuest[]>([]);
+  const [selectedWorkoutQuest, setSelectedWorkoutQuest] = useState<WorkoutQuest | null>(null);
+  const [loadingWorkout, setLoadingWorkout] = useState(false);
+  const [planWeeks, setPlanWeeks] = useState("4");
 
   useEffect(() => {
     // If no preferences, redirect to onboarding
@@ -34,6 +48,31 @@ export default function Dashboard() {
       navigate('/onboarding');
     }
   }, [preferences, navigate]);
+
+  // Load workout quests if fitness is selected
+  useEffect(() => {
+    if (preferences?.focusAreas.includes('fitness') && user?.email) {
+      loadWorkoutData();
+    }
+  }, [preferences, user]);
+
+  const loadWorkoutData = async () => {
+    if (!user?.email) return;
+    
+    try {
+      const [statsData, activeData, completedData] = await Promise.all([
+        workoutQuestsAPI.getUserStats(user.email),
+        workoutQuestsAPI.getActiveQuests(user.email),
+        workoutQuestsAPI.getCompletedQuests(user.email),
+      ]);
+
+      setWorkoutStats(statsData);
+      setActiveWorkoutQuests(activeData);
+      setCompletedWorkoutQuests(completedData);
+    } catch (error) {
+      console.error("Failed to load workout data:", error);
+    }
+  };
 
   const handleGenerateQuests = () => {
     if (!preferences) return;
@@ -63,6 +102,63 @@ export default function Dashboard() {
     logout();
     navigate('/');
     toast.success('Logged out successfully');
+  };
+
+  const handleGenerateWorkoutPlan = async () => {
+    if (!user?.email || !preferences) return;
+    
+    setLoadingWorkout(true);
+    try {
+      const fitnessLevel = preferences.difficulty === 'casual' ? 'beginner' : 
+                          preferences.difficulty === 'balanced' ? 'intermediate' : 'expert';
+      
+      await workoutQuestsAPI.createUser(user.email, fitnessLevel);
+      const result = await workoutQuestsAPI.generateWorkoutPlan(user.email, parseInt(planWeeks));
+
+      toast.success("Workout Plan Generated!", {
+        description: `Created ${result.quests_created} workout quests for ${result.duration_weeks} weeks`,
+      });
+
+      await loadWorkoutData();
+    } catch (error) {
+      toast.error("Failed to generate workout plan");
+      console.error(error);
+    } finally {
+      setLoadingWorkout(false);
+    }
+  };
+
+  const handleCompleteWorkoutQuest = async (questId: string) => {
+    if (!user?.email) return;
+    
+    try {
+      const result = await workoutQuestsAPI.completeQuest(user.email, questId);
+      
+      // Store current level before adding XP
+      const currentLevel = level;
+      
+      // Add XP to main user store (this updates level automatically)
+      addXP(result.rewards.xp);
+      
+      // Check if leveled up after a brief delay to ensure state is updated
+      setTimeout(() => {
+        const newLevelAfterXP = useUserStore.getState().level;
+        if (newLevelAfterXP > currentLevel) {
+          setNewLevel(newLevelAfterXP);
+          setShowLevelUpModal(true);
+        }
+      }, 100);
+
+      toast.success("Workout Quest Completed! 🎉", {
+        description: `+${result.rewards.xp} XP earned!`,
+      });
+
+      await loadWorkoutData();
+      setSelectedWorkoutQuest(null);
+    } catch (error) {
+      toast.error("Failed to complete workout quest");
+      console.error(error);
+    }
   };
 
   const activeQuests = quests.filter((q) => q.status === 'active');
@@ -127,18 +223,87 @@ export default function Dashboard() {
             />
 
             {/* Generate Quests Button */}
-            <motion.button
-              onClick={handleGenerateQuests}
-              className="w-full py-5 rounded-2xl gradient-bg shine-effect font-heading font-bold text-lg text-white shadow-2xl flex items-center justify-center gap-3"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <motion.div
+              className="w-full rounded-2xl gradient-bg shine-effect shadow-2xl p-6"
               style={{
                 boxShadow: '0 10px 40px -10px hsl(var(--glow-primary)), 0 0 60px -20px hsl(var(--glow-secondary))',
               }}
             >
-              <Plus className="w-6 h-6" />
-              Generate New Quests
-            </motion.button>
+              <div className="flex flex-col sm:flex-row gap-4 items-end">
+                {preferences?.focusAreas.includes('fitness') && (
+                  <div className="flex-1">
+                    <label className="text-sm font-body font-medium text-white mb-2 block">
+                      Workout Plan Duration
+                    </label>
+                    <Select value={planWeeks} onValueChange={setPlanWeeks}>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white font-body">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2">2 weeks</SelectItem>
+                        <SelectItem value="4">4 weeks</SelectItem>
+                        <SelectItem value="6">6 weeks</SelectItem>
+                        <SelectItem value="8">8 weeks</SelectItem>
+                        <SelectItem value="12">12 weeks</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <motion.button
+                  onClick={preferences?.focusAreas.includes('fitness') ? handleGenerateWorkoutPlan : handleGenerateQuests}
+                  disabled={loadingWorkout}
+                  className={`${preferences?.focusAreas.includes('fitness') ? 'flex-1' : 'w-full'} py-5 px-6 rounded-xl font-heading font-bold text-lg text-white flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 transition-colors`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Plus className="w-6 h-6" />
+                  {loadingWorkout ? "Generating..." : "Generate New Quests"}
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* Fitness Workout Quests Section */}
+            {preferences?.focusAreas.includes('fitness') && (
+              <div className="space-y-6">
+                {/* Active Workout Quests */}
+                {activeWorkoutQuests.length > 0 && (
+                  <div>
+                    <h3 className="font-heading text-xl font-bold text-white mb-4">
+                      Active Workout Quests
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {activeWorkoutQuests.map((quest, index) => (
+                        <WorkoutQuestCard
+                          key={quest.quest_id}
+                          quest={quest}
+                          onViewDetails={() => setSelectedWorkoutQuest(quest)}
+                          onComplete={() => handleCompleteWorkoutQuest(quest.quest_id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Completed Workout Quests */}
+                {completedWorkoutQuests.length > 0 && (
+                  <div>
+                    <h3 className="font-heading text-xl font-bold text-white mb-4">
+                      Completed Workout Quests
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {completedWorkoutQuests.map((quest) => (
+                        <WorkoutQuestCard
+                          key={quest.quest_id}
+                          quest={quest}
+                          onViewDetails={() => setSelectedWorkoutQuest(quest)}
+                          completed
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Active Quests */}
             {activeQuests.length > 0 && (
@@ -278,6 +443,117 @@ export default function Dashboard() {
         level={newLevel}
         onClose={() => setShowLevelUpModal(false)}
       />
+
+      {/* Workout Quest Details Dialog */}
+      {selectedWorkoutQuest && (
+        <QuestDetailsDialog
+          quest={selectedWorkoutQuest}
+          open={!!selectedWorkoutQuest}
+          onClose={() => setSelectedWorkoutQuest(null)}
+          onComplete={
+            selectedWorkoutQuest.status === "active"
+              ? () => handleCompleteWorkoutQuest(selectedWorkoutQuest.quest_id)
+              : undefined
+          }
+        />
+      )}
     </div>
+  );
+}
+
+// Workout Quest Card Component
+interface WorkoutQuestCardProps {
+  quest: WorkoutQuest;
+  onViewDetails: () => void;
+  onComplete?: () => void;
+  completed?: boolean;
+}
+
+function WorkoutQuestCard({ quest, onViewDetails, onComplete, completed }: WorkoutQuestCardProps) {
+  return (
+    <motion.div
+      className={`relative rounded-2xl p-5 backdrop-blur-sm border transition-all ${
+        completed 
+          ? 'bg-gradient-to-br from-card/30 to-card/20 border-white/5 opacity-75' 
+          : 'bg-gradient-to-br from-card/90 to-card/50 border-white/10 hover:border-white/20'
+      }`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={!completed ? { scale: 1.02, y: -5 } : {}}
+      style={{
+        boxShadow: completed 
+          ? 'none'
+          : '0 10px 40px -10px rgba(0, 0, 0, 0.3)',
+      }}
+    >
+      {/* Status Badge */}
+      <div className="absolute top-3 right-3">
+        <Badge 
+          variant={completed ? "secondary" : "default"}
+          className={completed ? "bg-white/10 text-xs" : "bg-gradient-to-r from-primary to-purple-600 text-xs"}
+        >
+          {completed ? "Completed" : "Active"}
+        </Badge>
+      </div>
+
+      {/* Quest Title */}
+      <div className="mb-3 pr-20">
+        <h3 className="font-heading text-lg font-bold text-white mb-1">
+          {quest.title}
+        </h3>
+        <p className="text-xs text-muted-foreground font-body">
+          {quest.exercises.length} exercises
+        </p>
+      </div>
+
+      {/* Description */}
+      <p className="text-xs text-muted-foreground font-body mb-3 line-clamp-2">
+        {quest.description}
+      </p>
+
+      {/* Rewards */}
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-1.5">
+          <div className="p-1.5 rounded-lg bg-purple-500/20">
+            <Zap className="h-4 w-4 text-purple-400" />
+          </div>
+          <span className="font-heading font-semibold text-white">
+            {quest.experience_reward} XP
+          </span>
+        </div>
+        {quest.cached_rewards.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            <div className="p-1.5 rounded-lg bg-pink-500/20">
+              <Gift className="h-4 w-4 text-pink-400" />
+            </div>
+            <span className="font-heading font-semibold text-white">
+              {quest.cached_rewards.length} Reward{quest.cached_rewards.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <motion.button
+          onClick={onViewDetails}
+          className="flex-1 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-heading font-semibold text-sm transition-colors"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          View Details
+        </motion.button>
+        {!completed && onComplete && (
+          <motion.button
+            onClick={onComplete}
+            className="flex-1 py-2 px-3 rounded-xl gradient-bg shine-effect text-white font-heading font-semibold text-sm"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Complete
+          </motion.button>
+        )}
+      </div>
+    </motion.div>
   );
 }
