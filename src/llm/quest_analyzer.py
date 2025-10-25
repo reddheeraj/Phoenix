@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from src.llm.bedrock_client import BedrockClient
 from src.gmail.email_parser import EmailParser
 

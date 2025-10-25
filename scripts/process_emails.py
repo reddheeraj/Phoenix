@@ -18,7 +18,7 @@ from src.database.db_manager import DatabaseManager
 from src.gmail.gmail_client import GmailClient
 from src.gmail.email_parser import EmailParser
 from src.llm.quest_analyzer import QuestAnalyzer
-from src.calendar.calendar_client import CalendarClient
+from src.gcalendar.calendar_client import CalendarClient
 from src.config.settings import settings
 
 # Configure logging

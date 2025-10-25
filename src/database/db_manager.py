@@ -1,5 +1,6 @@
 import sqlite3
 import logging
+import os
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from src.config.settings import settings
@@ -15,7 +16,7 @@ class DatabaseManager:
         """Initialize database with schema"""
         try:
             with sqlite3.connect(self.db_path) as conn:
-                with open('src/database/schema.sql', 'r') as f:
+                with open(os.path.join(os.path.dirname(__file__), 'schema.sql'), 'r') as f:
                     schema_sql = f.read()
                 conn.executescript(schema_sql)
                 conn.commit()

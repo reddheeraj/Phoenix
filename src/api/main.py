@@ -10,8 +10,8 @@ import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-# Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Add project root to path (parent of src/)
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, project_root)
 
 from fastapi import FastAPI, HTTPException, Query, Path
@@ -23,7 +23,7 @@ from agno.agent import Agent
 from src.database.db_manager import DatabaseManager
 from src.agent.quest_agent import QuestAgent
 from src.gmail.gmail_client import GmailClient
-from src.calendar.calendar_client import CalendarClient
+from src.gcalendar.calendar_client import CalendarClient
 from scripts.process_emails import EmailProcessor
 from src.llm.quest_analyzer import QuestAnalyzer
 

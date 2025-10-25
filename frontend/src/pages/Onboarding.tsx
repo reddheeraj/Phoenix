@@ -11,8 +11,8 @@ import { toast } from 'sonner';
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { setPreferences } = useUserStore();
-  const { user, completeOnboarding, isLoading } = useApiStore();
+  const { user, setPreferences } = useUserStore();
+  const { completeOnboarding, isLoading } = useApiStore();
   const [step, setStep] = useState(1);
   const [selectedFocusAreas, setSelectedFocusAreas] = useState<FocusArea[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
@@ -104,6 +104,7 @@ export default function Onboarding() {
   };
 
   const handleComplete = async () => {
+    console.log('handleComplete', user, dailyTasks, longTermGoals);
     if (!user || dailyTasks.length === 0 || longTermGoals.length === 0) {
       toast.error('Please complete all steps');
       return;
