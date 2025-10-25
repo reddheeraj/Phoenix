@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Base Colors */
+    --background: 222 47% 11%;
+    --foreground: 0 0% 100%;
+
+    /* Card Colors */
+    --card: 217 33% 17%;
+    --card-foreground: 0 0% 100%;
+
+    /* Popover Colors */
+    --popover: 217 33% 17%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primary - Indigo */
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Purple */
+    --secondary: 271 91% 65%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent - Cyan */
+    --accent: 189 94% 43%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Muted */
+    --muted: 217 33% 17%;
+    --muted-foreground: 220 9% 65%;
+
+    /* Destructive - Red */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border & Input */
+    --border: 0 0% 100% / 0.2;
+    --input: 0 0% 100% / 0.1;
+    --ring: 239 84% 67%;
+
+    /* Radius */
+    --radius: 1rem;
+
+    /* Quest Ranks */
+    --rank-e: 220 9% 46%;
+    --rank-d: 160 84% 39%;
+    --rank-c: 221 83% 53%;
+    --rank-b: 271 91% 65%;
+    --rank-a: 38 92% 50%;
+    --rank-s: 0 72% 51%;
+
+    /* Special Effects */
+    --glow-primary: 239 84% 67% / 0.5;
+    --glow-secondary: 271 91% 65% / 0.5;
+    --glow-accent: 189 94% 43% / 0.5;
+
+    /* Sidebar (not used in this app but keeping for compatibility) */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 271 91% 65%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 100% / 0.2;
+    --sidebar-ring: 239 84% 67%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-foreground font-body;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--secondary)));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, hsl(var(--secondary)), hsl(var(--accent)));
+  }
+}
+
+@layer utilities {
+  /* Glass-morphism utility */
+  .glass {
+    @apply backdrop-blur-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20;
+  }
+
+  .glass-hover {
+    @apply hover:border-white/40 hover:shadow-2xl transition-all duration-300;
+  }
+
+  /* Gradient text utility */
+  .gradient-text {
+    @apply bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#06B6D4] bg-clip-text text-transparent;
+  }
+
+  /* Gradient background utility */
+  .gradient-bg {
+    @apply bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#06B6D4];
+  }
+
+  /* Shine animation for buttons */
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shine 2s infinite;
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--glow-primary)), 0 0 40px hsl(var(--glow-primary));
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 20px hsl(var(--glow-secondary)), 0 0 40px hsl(var(--glow-secondary));
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px hsl(var(--glow-accent)), 0 0 40px hsl(var(--glow-accent));
+  }
+
+  /* Font utilities */
+  .font-heading {
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+}
