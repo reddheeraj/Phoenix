@@ -401,8 +401,8 @@ class DatabaseManager:
     
     def calculate_level_xp_required(self, level: int) -> int:
         """Calculate XP required for a specific level"""
-        # Exponential growth: Level 1 = 100 XP, Level 2 = 250 XP, Level 3 = 450 XP, etc.
-        return int(100 * (level ** 1.5))
+        # More reasonable growth: Level 1 = 50 XP, Level 2 = 100 XP, Level 3 = 150 XP, etc.
+        return int(50 * level)
     
     def complete_quest(self, quest_id: int, user_id: str) -> Dict:
         """Complete a quest and award XP"""
@@ -502,5 +502,71 @@ class DatabaseManager:
                 
         except Exception as e:
             logger.error(f"Failed to complete quest: {e}")
+            raise
+    
+    def get_quests_without_calendar_events(self) -> List[Dict]:
+        """Get all quests that don't have calendar events"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT id, user_id, title, description, quest_type, importance, 
+                           urgency, deadline, event_duration_minutes
+                    FROM quests 
+                    WHERE calendar_event_id IS NULL AND deadline IS NOT NULL
+                    ORDER BY created_at DESC
+                """)
+                results = cursor.fetchall()
+                
+                quests = []
+                for row in results:
+                    quests.append({
+                        'id': row[0],
+                        'user_id': row[1],
+                        'title': row[2],
+                        'description': row[3],
+                        'quest_type': row[4],
+                        'importance': row[5],
+                        'urgency': row[6],
+                        'deadline': row[7],
+                        'event_duration_minutes': row[8]
+                    })
+                
+                return quests
+        except Exception as e:
+            logger.error(f"Failed to get quests without calendar events: {e}")
+            raise
+    
+    def get_user_quests_without_calendar_events(self, user_id: str) -> List[Dict]:
+        """Get user's quests that don't have calendar events"""
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT id, user_id, title, description, quest_type, importance, 
+                           urgency, deadline, event_duration_minutes
+                    FROM quests 
+                    WHERE user_id = ? AND calendar_event_id IS NULL AND deadline IS NOT NULL
+                    ORDER BY created_at DESC
+                """, (user_id,))
+                results = cursor.fetchall()
+                
+                quests = []
+                for row in results:
+                    quests.append({
+                        'id': row[0],
+                        'user_id': row[1],
+                        'title': row[2],
+                        'description': row[3],
+                        'quest_type': row[4],
+                        'importance': row[5],
+                        'urgency': row[6],
+                        'deadline': row[7],
+                        'event_duration_minutes': row[8]
+                    })
+                
+                return quests
+        except Exception as e:
+            logger.error(f"Failed to get user quests without calendar events: {e}")
             raise
 

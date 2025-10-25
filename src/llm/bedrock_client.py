@@ -17,12 +17,19 @@ class BedrockClient:
     def _initialize_client(self):
         """Initialize AWS Bedrock client"""
         try:
-            self.client = boto3.client(
-                'bedrock-runtime',
-                region_name=self.region,
-                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-            )
+            # Use session token if available (for temporary credentials)
+            client_kwargs = {
+                'service_name': 'bedrock-runtime',
+                'region_name': self.region,
+                'aws_access_key_id': settings.AWS_ACCESS_KEY_ID,
+                'aws_secret_access_key': settings.AWS_SECRET_ACCESS_KEY
+            }
+            
+            # Add session token if it exists (for temporary credentials)
+            if hasattr(settings, 'AWS_SESSION_TOKEN') and settings.AWS_SESSION_TOKEN:
+                client_kwargs['aws_session_token'] = settings.AWS_SESSION_TOKEN
+            
+            self.client = boto3.client(**client_kwargs)
             logger.info("Bedrock client initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize Bedrock client: {e}")
@@ -41,7 +48,12 @@ class BedrockClient:
                 "messages": [
                     {
                         "role": "user",
-                        "content": prompt
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
                     }
                 ]
             }
@@ -174,11 +186,17 @@ Respond with a JSON object containing:
 """
 
             body = {
+                "anthropic_version": "bedrock-2023-05-31",
                 "max_tokens": 4000,
                 "messages": [
                     {
                         "role": "user",
-                        "content": prompt
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
                     }
                 ]
             }

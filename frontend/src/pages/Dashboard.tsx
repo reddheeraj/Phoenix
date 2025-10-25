@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { LogOut, Flame, Target, Zap, Mail, RefreshCw } from 'lucide-react';
+import { LogOut, Flame, Target, Zap, Mail, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { FloatingOrbs } from '@/components/FloatingOrbs';
 import { PlayerCard } from '@/components/PlayerCard';
 import { QuestCard } from '@/components/QuestCard';
@@ -33,6 +33,10 @@ export default function Dashboard() {
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [newLevel, setNewLevel] = useState(1);
   const [questFilter, setQuestFilter] = useState<'all' | 'daily_task' | 'email_based'>('all');
+  const [currentActiveSlide, setCurrentActiveSlide] = useState(0);
+  const [currentCompletedSlide, setCurrentCompletedSlide] = useState(0);
+  const activeScrollRef = useRef<HTMLDivElement>(null);
+  const completedScrollRef = useRef<HTMLDivElement>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -113,6 +117,32 @@ export default function Dashboard() {
     logout();
     navigate('/');
     toast.success('Logged out successfully');
+  };
+
+  // Scroll functions for quest navigation
+  const scrollToSlide = (ref: React.RefObject<HTMLDivElement>, slideIndex: number, setSlide: (index: number) => void) => {
+    if (ref.current) {
+      const slideWidth = ref.current.children[0]?.clientWidth || 0;
+      const scrollLeft = slideIndex * (slideWidth + 24); // 24px gap
+      ref.current.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      setSlide(slideIndex);
+    }
+  };
+
+  const scrollActiveQuests = (direction: 'left' | 'right') => {
+    const maxSlides = Math.ceil(activeQuests.length / 6);
+    const newSlide = direction === 'left' 
+      ? Math.max(0, currentActiveSlide - 1)
+      : Math.min(maxSlides - 1, currentActiveSlide + 1);
+    scrollToSlide(activeScrollRef, newSlide, setCurrentActiveSlide);
+  };
+
+  const scrollCompletedQuests = (direction: 'left' | 'right') => {
+    const maxSlides = Math.ceil(completedQuests.length / 6);
+    const newSlide = direction === 'left' 
+      ? Math.max(0, currentCompletedSlide - 1)
+      : Math.min(maxSlides - 1, currentCompletedSlide + 1);
+    scrollToSlide(completedScrollRef, newSlide, setCurrentCompletedSlide);
   };
 
   // Filter quests based on selected filter
@@ -262,43 +292,154 @@ export default function Dashboard() {
             {/* Active Quests */}
             {activeQuests.length > 0 && (
               <div>
-                <h2 className="font-heading text-2xl font-bold text-white mb-4">
-                  Active Quests
-                </h2>
-                <motion.div
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ staggerChildren: 0.1 }}
-                >
-                  {activeQuests.map((quest, index) => (
-                    <motion.div
-                      key={quest.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <QuestCard quest={quest} onComplete={handleCompleteQuest} />
-                    </motion.div>
-                  ))}
-                </motion.div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-heading text-2xl font-bold text-white">
+                    Active Quests
+                  </h2>
+                  {Math.ceil(activeQuests.length / 6) > 1 && (
+                    <div className="flex gap-2">
+                      <motion.button
+                        onClick={() => scrollActiveQuests('left')}
+                        disabled={currentActiveSlide === 0}
+                        className="p-2 rounded-lg glass glass-hover text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => scrollActiveQuests('right')}
+                        disabled={currentActiveSlide === Math.ceil(activeQuests.length / 6) - 1}
+                        className="p-2 rounded-lg glass glass-hover text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </motion.button>
+                    </div>
+                  )}
+                </div>
+                <div className="relative">
+                  <div 
+                    ref={activeScrollRef}
+                    className="overflow-x-auto scrollbar-hide"
+                  >
+                    <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                      {Array.from({ length: Math.ceil(activeQuests.length / 6) }, (_, slideIndex) => (
+                        <div
+                          key={slideIndex}
+                          className="grid grid-cols-3 gap-4 flex-shrink-0"
+                          style={{ width: 'calc(100vw - 4rem)', maxWidth: '900px' }}
+                        >
+                          {activeQuests.slice(slideIndex * 6, (slideIndex + 1) * 6).map((quest, index) => (
+                            <motion.div
+                              key={quest.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="h-60"
+                            >
+                              <QuestCard quest={quest} onComplete={handleCompleteQuest} />
+                            </motion.div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Scroll indicators */}
+                  {Math.ceil(activeQuests.length / 6) > 1 && (
+                    <div className="flex justify-center mt-4 gap-2">
+                      {Array.from({ length: Math.ceil(activeQuests.length / 6) }, (_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => scrollToSlide(activeScrollRef, index, setCurrentActiveSlide)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            index === currentActiveSlide ? 'bg-white' : 'bg-white/30'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             {/* Completed Quests */}
             {completedQuests.length > 0 && (
               <div>
-                <h2 className="font-heading text-2xl font-bold text-white mb-4">
-                  Completed Quests
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {completedQuests.map((quest) => (
-                    <QuestCard
-                      key={quest.id}
-                      quest={quest}
-                      onComplete={() => {}}
-                    />
-                  ))}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-heading text-2xl font-bold text-white">
+                    Completed Quests
+                  </h2>
+                  {Math.ceil(completedQuests.length / 6) > 1 && (
+                    <div className="flex gap-2">
+                      <motion.button
+                        onClick={() => scrollCompletedQuests('left')}
+                        disabled={currentCompletedSlide === 0}
+                        className="p-2 rounded-lg glass glass-hover text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => scrollCompletedQuests('right')}
+                        disabled={currentCompletedSlide === Math.ceil(completedQuests.length / 6) - 1}
+                        className="p-2 rounded-lg glass glass-hover text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </motion.button>
+                    </div>
+                  )}
+                </div>
+                <div className="relative">
+                  <div 
+                    ref={completedScrollRef}
+                    className="overflow-x-auto scrollbar-hide"
+                  >
+                    <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                      {Array.from({ length: Math.ceil(completedQuests.length / 6) }, (_, slideIndex) => (
+                        <div
+                          key={slideIndex}
+                          className="grid grid-cols-3 gap-4 flex-shrink-0"
+                          style={{ width: 'calc(100vw - 4rem)', maxWidth: '900px' }}
+                        >
+                          {completedQuests.slice(slideIndex * 6, (slideIndex + 1) * 6).map((quest, index) => (
+                            <motion.div
+                              key={quest.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="h-40"
+                            >
+                              <QuestCard
+                                quest={quest}
+                                onComplete={() => {}}
+                              />
+                            </motion.div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Scroll indicators */}
+                  {Math.ceil(completedQuests.length / 6) > 1 && (
+                    <div className="flex justify-center mt-4 gap-2">
+                      {Array.from({ length: Math.ceil(completedQuests.length / 6) }, (_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => scrollToSlide(completedScrollRef, index, setCurrentCompletedSlide)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            index === currentCompletedSlide ? 'bg-white' : 'bg-white/30'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
-import { Zap, Trophy, Mail, Calendar } from 'lucide-react';
+import { Zap, Trophy, Mail, Calendar, Info } from 'lucide-react';
 import { ApiQuest } from '@/types/quest';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface QuestCardProps {
   quest: ApiQuest;
@@ -23,113 +26,169 @@ const importanceRank = {
   main_quest: 'M',
 };
 
-// XP calculation based on importance and urgency
-const calculateXP = (importance: string, urgency: string): number => {
-  const importanceXP = {
-    daily: 25,
-    weekly: 50,
-    side_quest: 100,
-    main_quest: 200,
+// XP calculation based on quest type, importance and urgency (matches backend)
+const calculateXP = (questType: string, importance: string, urgency: string): number => {
+  const baseXP = {
+    'daily_task': 10,
+    'email_based': 25
+  };
+  
+  const importanceMultiplier = {
+    'daily': 1.0,
+    'weekly': 1.2,
+    'main_quest': 1.5,
+    'side_quest': 0.8
   };
   
   const urgencyMultiplier = {
-    low: 1,
-    medium: 1.5,
-    high: 2,
-    critical: 3,
+    'low': 0.8,
+    'medium': 1.0,
+    'high': 1.3,
+    'critical': 1.5
   };
   
-  return Math.floor((importanceXP[importance] || 25) * (urgencyMultiplier[urgency] || 1));
+  const base = baseXP[questType] || 20;
+  const importanceMult = importanceMultiplier[importance] || 1.0;
+  const urgencyMult = urgencyMultiplier[urgency] || 1.0;
+  
+  return Math.floor(base * importanceMult * urgencyMult);
 };
 
 export const QuestCard = ({ quest, onComplete }: QuestCardProps) => {
   const isCompleted = quest.status === 'completed';
   const urgencyColor = urgencyColors[quest.urgency];
   const rankDisplay = importanceRank[quest.importance];
-  const xpReward = calculateXP(quest.importance, quest.urgency);
+  const xpReward = calculateXP(quest.quest_type, quest.importance, quest.urgency);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: isCompleted ? 0.6 : 1, scale: 1 }}
-      whileHover={isCompleted ? {} : { y: -5, scale: 1.03 }}
-      transition={{ duration: 0.3 }}
-      className={`glass rounded-2xl p-6 relative ${
-        isCompleted ? '' : 'glass-hover cursor-pointer'
-      }`}
-      style={{
-        boxShadow: isCompleted
-          ? 'none'
-          : `0 10px 30px -10px ${urgencyColor}40, 0 20px 50px -20px ${urgencyColor}20`,
-      }}
-    >
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: isCompleted ? 0.6 : 1, scale: 1 }}
+            whileHover={isCompleted ? {} : { y: -2, scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+            className={`glass rounded-xl p-4 relative h-full flex flex-col ${
+              isCompleted ? '' : 'glass-hover cursor-pointer'
+            }`}
+            style={{
+              boxShadow: isCompleted
+                ? 'none'
+                : `0 5px 15px -5px ${urgencyColor}40`,
+            }}
+          >
       {/* Rank Badge */}
-      <motion.div
-        className="absolute -top-3 -right-3 w-14 h-14 rounded-full flex items-center justify-center font-heading font-bold text-lg shadow-lg"
+      <div
+        className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center font-heading font-bold text-sm shadow-lg"
         style={{
           backgroundColor: urgencyColor,
-          boxShadow: `0 0 20px ${urgencyColor}80, 0 0 40px ${urgencyColor}40`,
         }}
-        whileHover={isCompleted ? {} : { rotate: [0, -10, 10, -10, 0] }}
-        transition={{ duration: 0.5 }}
       >
         {rankDisplay}
-      </motion.div>
+      </div>
 
       {/* Quest Type Badge */}
       {quest.quest_type === 'email_based' && (
-        <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30">
+        <div className="absolute top-2 left-2">
           <Mail className="w-3 h-3 text-blue-400" />
-          <span className="text-xs font-semibold text-blue-400">Email</span>
         </div>
       )}
 
       {/* Quest Content */}
-      <div className={`space-y-3 ${quest.quest_type === 'email_based' ? 'mt-6' : ''}`}>
-        <h3 className="font-heading font-bold text-xl text-foreground pr-8">
+      <div className="flex-1 flex flex-col">
+        <h3 className="font-heading font-bold text-sm text-foreground pr-6 mb-2 line-clamp-2">
           {quest.title}
         </h3>
         
-        <p className="text-muted-foreground font-body text-sm">
-          {quest.description}
-        </p>
-        
-        {/* Deadline */}
-        {quest.deadline && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Calendar className="w-3 h-3" />
-            <span>Due: {new Date(quest.deadline).toLocaleDateString()}</span>
-          </div>
-        )}
-
         {/* XP Badge */}
-        <div className="flex items-center gap-2 bg-accent/20 rounded-xl px-3 py-2 w-fit">
-          <Zap className="w-4 h-4 fill-accent text-accent" />
-          <span className="font-heading font-bold text-accent">
+        <div className="flex items-center gap-1 bg-accent/20 rounded-lg px-2 py-1 w-fit mb-3">
+          <Zap className="w-3 h-3 fill-accent text-accent" />
+          <span className="font-heading font-bold text-accent text-xs">
             {xpReward} XP
           </span>
         </div>
 
         {/* Complete Button / Status */}
         {isCompleted ? (
-          <div className="flex items-center gap-2 text-green-500 font-heading font-semibold">
-            <Trophy className="w-5 h-5" />
-            <span>Completed!</span>
+          <div className="flex items-center gap-1 text-green-500 font-heading font-semibold text-xs mt-auto">
+            <Trophy className="w-4 h-4" />
+            <span>Done!</span>
           </div>
         ) : (
-          <motion.button
-            onClick={() => onComplete(quest.id.toString())}
-            className="w-full mt-4 gradient-bg shine-effect rounded-xl py-3 font-heading font-semibold text-white shadow-lg"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{
-              boxShadow: `0 10px 30px -10px ${urgencyColor}60`,
-            }}
-          >
-            Complete Quest
-          </motion.button>
+          <div className="mt-auto space-y-2">
+            {/* Info Button */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <motion.button
+                  className="w-full flex items-center justify-center gap-1 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Info className="w-3 h-3" />
+                  Details
+                </motion.button>
+              </DialogTrigger>
+              <DialogContent className="glass border-white/20 max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-white font-heading">
+                    {quest.title}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-white">
+                  <p className="text-sm text-white/80">{quest.description}</p>
+                  
+                  {quest.deadline && (
+                    <div className="flex items-center gap-2 text-sm text-white/60">
+                      <Calendar className="w-4 h-4" />
+                      <span>Due: {new Date(quest.deadline).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-white/60">Category:</span>
+                    <span className="capitalize">{quest.quest_category}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-white/60">Urgency:</span>
+                    <span className="capitalize">{quest.urgency}</span>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Complete Button */}
+            <motion.button
+              onClick={() => onComplete(quest.id.toString())}
+              className="w-full gradient-bg rounded-lg py-2 font-heading font-semibold text-white text-xs shadow-lg"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Complete
+            </motion.button>
+          </div>
         )}
       </div>
-    </motion.div>
+          </motion.div>
+        </TooltipTrigger>
+        <TooltipContent 
+          side="top" 
+          className="glass border-white/20 max-w-xs p-3"
+          sideOffset={5}
+        >
+          <div className="space-y-2">
+            <p className="text-sm text-white font-medium">{quest.title}</p>
+            <p className="text-xs text-white/80">{quest.description}</p>
+            {quest.deadline && (
+              <div className="flex items-center gap-1 text-xs text-white/60">
+                <Calendar className="w-3 h-3" />
+                <span>Due: {new Date(quest.deadline).toLocaleDateString()}</span>
+              </div>
+            )}
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

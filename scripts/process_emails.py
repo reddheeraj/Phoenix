@@ -214,6 +214,27 @@ class EmailProcessor:
                         if quest_id:
                             quests_created += 1
                             logger.info(f"Created quest for user {user_id}: {analysis['title']}")
+                            
+                            # Create calendar event if quest has deadline
+                            if analysis.get('deadline'):
+                                try:
+                                    quest_data = {
+                                        'title': analysis['title'],
+                                        'description': analysis['description'],
+                                        'quest_type': analysis['quest_type'],
+                                        'importance': analysis['importance'],
+                                        'urgency': analysis['urgency'],
+                                        'deadline': analysis['deadline'],
+                                        'event_duration_minutes': analysis.get('event_duration_minutes', 60)
+                                    }
+                                    
+                                    calendar_event_id = self.calendar_client.create_quest_event(quest_data)
+                                    if calendar_event_id:
+                                        self.db_manager.update_quest_calendar_event_id(quest_id, calendar_event_id)
+                                        logger.info(f"Created calendar event for quest {quest_id}: {calendar_event_id}")
+                                        
+                                except Exception as e:
+                                    logger.warning(f"Failed to create calendar event for quest {quest_id}: {e}")
                     
                     # Mark email as processed
                     self.db_manager.mark_email_processed(email['id'])

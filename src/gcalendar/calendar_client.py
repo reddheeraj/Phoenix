@@ -103,7 +103,12 @@ class CalendarClient:
             
             # Set start time
             if deadline:
-                start_time = deadline
+                # Handle both datetime objects and string dates
+                if isinstance(deadline, str):
+                    # Parse string date (assuming ISO format)
+                    start_time = datetime.fromisoformat(deadline.replace('Z', ''))
+                else:
+                    start_time = deadline
             else:
                 # Default to tomorrow at 9 AM if no deadline
                 start_time = datetime.now().replace(hour=9, minute=0, second=0, microsecond=0) + timedelta(days=1)
