@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Dumbbell, Briefcase, Gamepad2, Zap, Flame, ArrowRight, ArrowLeft } from 'lucide-react';
+import { BookOpen, Dumbbell, Briefcase, Gamepad2, Zap, Flame, ArrowRight, ArrowLeft, Target, Trophy } from 'lucide-react';
 import { FloatingOrbs } from '@/components/FloatingOrbs';
 import { PreferenceCard } from '@/components/PreferenceCard';
 import { useUserStore } from '@/store/userStore';
+import { useApiStore } from '@/store/apiStore';
 import { FocusArea, Difficulty } from '@/types/quest';
 import { toast } from 'sonner';
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const { setPreferences } = useUserStore();
+  const { user, completeOnboarding, isLoading } = useApiStore();
   const [step, setStep] = useState(1);
   const [selectedFocusAreas, setSelectedFocusAreas] = useState<FocusArea[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
+  const [dailyTasks, setDailyTasks] = useState<string[]>([]);
+  const [longTermGoals, setLongTermGoals] = useState<string[]>([]);
+  const [customDailyTask, setCustomDailyTask] = useState('');
+  const [customLongTermGoal, setCustomLongTermGoal] = useState('');
 
   const focusOptions = [
     {
@@ -78,7 +84,15 @@ export default function Onboarding() {
       toast.error('Please select a difficulty level');
       return;
     }
-    if (step < 3) {
+    if (step === 3 && dailyTasks.length === 0) {
+      toast.error('Please select at least one daily task');
+      return;
+    }
+    if (step === 4 && longTermGoals.length === 0) {
+      toast.error('Please select at least one long-term goal');
+      return;
+    }
+    if (step < 5) {
       setStep(step + 1);
     }
   };
@@ -89,19 +103,32 @@ export default function Onboarding() {
     }
   };
 
-  const handleComplete = () => {
-    if (selectedFocusAreas.length === 0 || !selectedDifficulty) {
+  const handleComplete = async () => {
+    if (!user || dailyTasks.length === 0 || longTermGoals.length === 0) {
       toast.error('Please complete all steps');
       return;
     }
 
-    setPreferences({
-      focusAreas: selectedFocusAreas,
-      difficulty: selectedDifficulty,
-    });
+    try {
+      const result = await completeOnboarding({
+        user_id: user.email, // Using email as user ID
+        daily_tasks: dailyTasks,
+        long_term_goals: longTermGoals,
+      });
 
-    toast.success('Preferences saved! Let\'s start your adventure!');
-    navigate('/dashboard');
+      if (result) {
+        // Also set legacy preferences for backward compatibility
+        setPreferences({
+          focusAreas: selectedFocusAreas,
+          difficulty: selectedDifficulty || 'balanced',
+        });
+
+        toast.success('Onboarding completed! Let\'s start your adventure!');
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      toast.error('Failed to complete onboarding. Please try again.');
+    }
   };
 
   return (
@@ -111,7 +138,7 @@ export default function Onboarding() {
       <div className="container mx-auto px-4 py-16 relative z-10">
         {/* Progress Indicators */}
         <div className="flex justify-center gap-2 mb-12">
-          {[1, 2, 3].map((num) => (
+          {[1, 2, 3, 4, 5].map((num) => (
             <motion.div
               key={num}
               className={`w-3 h-3 rounded-full ${
@@ -189,10 +216,176 @@ export default function Onboarding() {
               </motion.div>
             )}
 
-            {/* Step 3: Confirmation */}
+            {/* Step 3: Daily Tasks */}
             {step === 3 && (
               <motion.div
                 key="step3"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h2 className="font-heading text-4xl md:text-5xl font-bold text-white text-center mb-4">
+                  Daily Tasks
+                </h2>
+                <p className="text-muted-foreground text-center mb-12 font-body text-lg">
+                  What do you want to do every day?
+                </p>
+
+                <div className="max-w-2xl mx-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {['Gym', 'Read', 'Code', 'Meditate', 'Walk', 'Learn'].map((task) => (
+                      <motion.button
+                        key={task}
+                        onClick={() => {
+                          if (dailyTasks.includes(task)) {
+                            setDailyTasks(dailyTasks.filter(t => t !== task));
+                          } else {
+                            setDailyTasks([...dailyTasks, task]);
+                          }
+                        }}
+                        className={`p-4 rounded-xl font-body font-semibold transition-all ${
+                          dailyTasks.includes(task)
+                            ? 'gradient-bg text-white'
+                            : 'glass glass-hover text-white'
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {task}
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customDailyTask}
+                      onChange={(e) => setCustomDailyTask(e.target.value)}
+                      placeholder="Add custom daily task..."
+                      className="flex-1 px-4 py-3 rounded-xl glass text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <motion.button
+                      onClick={() => {
+                        if (customDailyTask.trim()) {
+                          setDailyTasks([...dailyTasks, customDailyTask.trim()]);
+                          setCustomDailyTask('');
+                        }
+                      }}
+                      className="px-6 py-3 rounded-xl gradient-bg text-white font-semibold"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Add
+                    </motion.button>
+                  </div>
+
+                  {dailyTasks.length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="font-heading font-bold text-white mb-3">Selected Tasks:</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {dailyTasks.map((task) => (
+                          <span
+                            key={task}
+                            className="px-4 py-2 rounded-xl gradient-bg font-body font-semibold text-white text-sm"
+                          >
+                            {task}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 4: Long-term Goals */}
+            {step === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h2 className="font-heading text-4xl md:text-5xl font-bold text-white text-center mb-4">
+                  Long-term Goals
+                </h2>
+                <p className="text-muted-foreground text-center mb-12 font-body text-lg">
+                  What are your big dreams and aspirations?
+                </p>
+
+                <div className="max-w-2xl mx-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {['Get a Job', 'Learn AI', 'Save Money', 'Travel', 'Start Business', 'Get Fit'].map((goal) => (
+                      <motion.button
+                        key={goal}
+                        onClick={() => {
+                          if (longTermGoals.includes(goal)) {
+                            setLongTermGoals(longTermGoals.filter(g => g !== goal));
+                          } else {
+                            setLongTermGoals([...longTermGoals, goal]);
+                          }
+                        }}
+                        className={`p-4 rounded-xl font-body font-semibold transition-all ${
+                          longTermGoals.includes(goal)
+                            ? 'gradient-bg text-white'
+                            : 'glass glass-hover text-white'
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {goal}
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={customLongTermGoal}
+                      onChange={(e) => setCustomLongTermGoal(e.target.value)}
+                      placeholder="Add custom long-term goal..."
+                      className="flex-1 px-4 py-3 rounded-xl glass text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <motion.button
+                      onClick={() => {
+                        if (customLongTermGoal.trim()) {
+                          setLongTermGoals([...longTermGoals, customLongTermGoal.trim()]);
+                          setCustomLongTermGoal('');
+                        }
+                      }}
+                      className="px-6 py-3 rounded-xl gradient-bg text-white font-semibold"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Add
+                    </motion.button>
+                  </div>
+
+                  {longTermGoals.length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="font-heading font-bold text-white mb-3">Selected Goals:</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {longTermGoals.map((goal) => (
+                          <span
+                            key={goal}
+                            className="px-4 py-2 rounded-xl gradient-bg font-body font-semibold text-white text-sm"
+                          >
+                            {goal}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 5: Confirmation */}
+            {step === 5 && (
+              <motion.div
+                key="step5"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
@@ -211,15 +404,15 @@ export default function Onboarding() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="font-heading font-bold text-white mb-3">
-                        Focus Areas
+                        Daily Tasks
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {selectedFocusAreas.map((area) => (
+                        {dailyTasks.map((task) => (
                           <span
-                            key={area}
+                            key={task}
                             className="px-4 py-2 rounded-xl gradient-bg font-body font-semibold text-white text-sm"
                           >
-                            {area.charAt(0).toUpperCase() + area.slice(1)}
+                            {task}
                           </span>
                         ))}
                       </div>
@@ -227,12 +420,18 @@ export default function Onboarding() {
 
                     <div>
                       <h3 className="font-heading font-bold text-white mb-3">
-                        Difficulty
+                        Long-term Goals
                       </h3>
-                      <span className="px-4 py-2 rounded-xl gradient-bg font-body font-semibold text-white inline-block">
-                        {selectedDifficulty?.charAt(0).toUpperCase()}
-                        {selectedDifficulty?.slice(1)}
-                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {longTermGoals.map((goal) => (
+                          <span
+                            key={goal}
+                            className="px-4 py-2 rounded-xl gradient-bg font-body font-semibold text-white text-sm"
+                          >
+                            {goal}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -257,16 +456,17 @@ export default function Onboarding() {
               Back
             </motion.button>
 
-            {step < 3 ? (
+            {step < 5 ? (
               <motion.button
                 onClick={handleNext}
                 className="flex items-center gap-2 px-6 py-3 rounded-xl font-heading font-semibold gradient-bg shine-effect text-white shadow-lg"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 style={{ boxShadow: '0 10px 30px -10px hsl(var(--glow-primary))' }}
+                disabled={isLoading}
               >
-                Next
-                <ArrowRight className="w-5 h-5" />
+                {isLoading ? 'Loading...' : 'Next'}
+                {!isLoading && <ArrowRight className="w-5 h-5" />}
               </motion.button>
             ) : (
               <motion.button
@@ -275,8 +475,9 @@ export default function Onboarding() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 style={{ boxShadow: '0 10px 30px -10px hsl(var(--glow-primary))' }}
+                disabled={isLoading}
               >
-                Start Adventure!
+                {isLoading ? 'Setting up...' : 'Start Adventure!'}
               </motion.button>
             )}
           </div>

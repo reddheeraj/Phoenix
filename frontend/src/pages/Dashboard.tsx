@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, LogOut, Flame, Target, Zap } from 'lucide-react';
+import { Plus, LogOut, Flame, Target, Zap, Mail, RefreshCw } from 'lucide-react';
 import { FloatingOrbs } from '@/components/FloatingOrbs';
 import { PlayerCard } from '@/components/PlayerCard';
 import { QuestCard } from '@/components/QuestCard';
 import { LevelUpModal } from '@/components/LevelUpModal';
 import { useUserStore } from '@/store/userStore';
+import { useApiStore } from '@/store/apiStore';
 import { generateQuests } from '@/utils/questGenerator';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -25,8 +26,22 @@ export default function Dashboard() {
     completeQuest,
   } = useUserStore();
 
+  const {
+    user: apiUser,
+    userStats,
+    userPreferences,
+    quests: apiQuests,
+    isLoading,
+    fetchUserStats,
+    fetchUserPreferences,
+    fetchUserQuests,
+    completeQuest: apiCompleteQuest,
+    processUserEmails,
+  } = useApiStore();
+
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [newLevel, setNewLevel] = useState(1);
+  const [questFilter, setQuestFilter] = useState<'all' | 'daily_task' | 'email_based'>('all');
 
   useEffect(() => {
     // If no preferences, redirect to onboarding
